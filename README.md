@@ -1,7 +1,7 @@
 BITMAUL - The Mauler of packetz 
 ======
 
-![BITMAUL ICON ](https://github.com/trisulnsm/trisul-scripts/raw/master/lua/bitmaul/maulaxe.png)
+![BITMAUL ICON ](https://github.com/trisulnsm/bitmaul/blob/master/maulaxe.png?raw=true)
 
 BITMAUL is a LUA helper library to help you write protocol dissectors. 
 
