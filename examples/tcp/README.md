@@ -2,7 +2,9 @@ TCP analyzer
 ============
 
 SweepBuf demonstration. 
-Decode TCP and extensions.
+
+
+The `tcp.lua` script uses SweepBuf to dissect the  TCP protocol and extensions.
 
 Usage
 -----
@@ -39,6 +41,10 @@ Option : SACK len=10
 
 
 ### Wireshark output
+
+
+[Wirshark output of the same packet](https://github.com/trisulnsm/bitmaul/blob/master/examples/tcp/wiresharktcp.png?raw=true) 
+
 
 
 
