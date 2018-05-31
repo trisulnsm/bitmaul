@@ -30,7 +30,7 @@ The `on_record(..)` function is called whenever a full PDU is reached. It is cal
 
 ## Running test_file driver
 
-Copy the BITMAUL files `sweepbuf.lua` and `pdurecord.lua` into your directory.  Then 
+> Copy the BITMAUL files `sweepbuf.lua` and `pdurecord.lua` into your directory.  Then 
 
 ````
 
