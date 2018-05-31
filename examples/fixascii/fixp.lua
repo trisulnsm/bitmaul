@@ -37,10 +37,20 @@ local FixDissector  = {
     elseif tbl.state=='get_full_record' then 
       tbl.state='init'
 
-      print("-----")
+      local resource={}
       for k,v in strbuf:gmatch("(%w+)=([^\1]+)\1") do
-        print(FixFields[k].."="..v) 
+        resource[#resource+1] = (FixFields[k].."="..v) 
       end
+
+      -- generate a Resource - in Trisul a LOG entry is a RESOURCE 
+      --
+      if pdur.engine then 
+        pdur.engine:add_resource("{7D1B9296-BF19-403C-0497-E002FEBB385B}",pdur.flowkey:id(),
+          "FIX log", table.concat(resource,","))
+      else
+	  	print("-------------------------")
+        print(table.concat(resource,"\n"))
+      end 
     end
   
   end ,
@@ -51,8 +61,8 @@ local FixDissector  = {
 -- 
 return {
     new= function(key)
-	    local p = setmetatable(  {state="init", moredata=0},   { __index = FixDissector})
-		return p
-	end
+      local p = setmetatable(  {state="init", moredata=0},   { __index = FixDissector})
+    return p
+  end
 }
 
