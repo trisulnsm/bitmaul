@@ -2,7 +2,6 @@
 -- 
 -- Uses BitMaul to handle FIX ASCII 
 --
-local PDURec = require'pdurecord'
 local FixFields = require'fixtypes'
 
 -- The dissector ; tells PDURecord about message boundaries. 
@@ -22,7 +21,6 @@ local FixDissector  = {
     end
 
   end,
-
 
   -- handle a reassembled record
   -- we just print the fields here 
@@ -49,37 +47,12 @@ local FixDissector  = {
 
 }
 
--- We need this metatable to store the state. 
-new_fix = function()
-  local p = setmetatable(  { state='init', moredata=0},   { __index = FixDissector})
-  return p
-end 
-
-
-
---------------------------------------
--- driver function 
--- read binary fix data from a file, randomly insert chunks into PDURecord
--- to test the reassembly and frame boundary calculation
---------------------------------------
-
-if #arg ~= 1 then 
-  print("Usage : fixp datafile")
-  return
-end 
-
-local pdu1 =  PDURec.new("fixp", new_fix() )
-
-local f = io.open(arg[1])
-local payl = f:read( math.random(50) )
-local payl = nil 
-local cpos = 1 
-
--- pump the PDU record, it will call dissector:on_record() at the correct time 
-while payl do 
-  pdu1:push_chunk(cpos,payl)
-  cpos = cpos + #payl
-  payl = f:read( math.random(20) )
-end
-
+-- so return a new dissector
+-- 
+return {
+    new= function(key)
+	    local p = setmetatable(  {state="init", moredata=0},   { __index = FixDissector})
+		return p
+	end
+}
 
