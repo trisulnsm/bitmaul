@@ -1,20 +1,13 @@
 TCP analyzer
 ============
 
-SweepBuf demonstration. 
-
-
 The `tcp.lua` script uses SweepBuf to dissect the  TCP protocol and extensions.
 
-Usage
------
-
-1. Copy the `sweepbuf.lua` into this directory before running as shown below 
+> #### Usage
+ Copy the `sweepbuf.lua` into this directory before running as shown below 
 
 
 ### Output
-
-
 
 ````
 jjoey@jjoeyu14:~/examples/tcp$ luajit tcp.lua 
@@ -37,8 +30,6 @@ Option : SACK len=10
 
 
 ````
-
-
 
 ### Wireshark output
 

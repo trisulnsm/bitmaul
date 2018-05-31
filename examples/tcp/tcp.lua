@@ -6,15 +6,15 @@ local tcp_bytes_hex =
 
 -- convert above to binary string for feeding into SweepBuf 
 local tcp_bytes_binary = tcp_bytes_hex:gsub('..', 
-											function (cc)
-												return string.char(tonumber(cc, 16))
-											end)
+                                            function (cc)
+                                              return string.char(tonumber(cc, 16))
+                                            end)
 
--- wrap the SweepBuffer over the binary buffer
+-- Wrap the SweepBuffer over the binary buffer
 local sb = SB.new(tcp_bytes_binary) 
 print(sb) 
 
--- print the fields
+-- Print the fields
 print("Source Port : " .. sb:next_u16())
 print("Dest   Port : " .. sb:next_u16())
 print("Sequence #  : " .. sb:next_u32())
@@ -24,27 +24,27 @@ print("Window Size : " .. sb:next_u16())
 print("Checksum    : " .. sb:next_u16())
 print("Urg         : " .. sb:next_u16())
 
--- TCP/options
+-- TCP/options - showing how to process records till end 
+-- 
 sb:push_fence(sb:bytes_left())
 while sb:has_more() do
-
-	local option_type = sb:next_u8()
-	if option_type==1 then
-		-- NO OP
-	elseif option_type==5 then
-		-- SACK
-		print("Option : SACK len="..sb:next_u8())
-		print("   left edge            :"..sb:next_u32())
-		print("   right edge           :"..sb:next_u32())
-	elseif option_type==8 then
-		-- Timestamp
-		print("Option : TIMESTAMP len="..sb:next_u8())
-		print("   Timestamp value      :"..sb:next_u32())
-		print("   Timestamp echo reply :"..sb:next_u32())
-	else
-		print("Unknown Option : len="..sb:u8())
-		sb:skip(sb:next_u8())
-	end
+  local option_type = sb:next_u8()
+  if option_type==1 then
+    -- NO OP
+  elseif option_type==5 then
+    -- SACK
+    print("Option : SACK len="..sb:next_u8())
+    print("   left edge            :"..sb:next_u32())
+    print("   right edge           :"..sb:next_u32())
+  elseif option_type==8 then
+    -- Timestamp
+    print("Option : TIMESTAMP len="..sb:next_u8())
+    print("   Timestamp value      :"..sb:next_u32())
+    print("   Timestamp echo reply :"..sb:next_u32())
+  else
+    print("Unknown Option : len="..sb:u8())
+    sb:skip(sb:next_u8())
+  end
 end
 sb:pop_fence() 
 
