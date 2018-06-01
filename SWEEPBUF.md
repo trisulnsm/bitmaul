@@ -5,7 +5,7 @@ Sweepbuf works on a LUA string which represents a network payload byte array.  T
 > #### What does SweepBuf mean ? 
 A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
 
-Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Utility functions](#utility-methods) | [Full examples](#examples) 
+Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [Utility functions](#utility-methods) | [Full examples](#examples) 
 
 ## Construction
 
@@ -171,6 +171,60 @@ These two methods should cover 99% of common network protocol idioms dealing wit
 
 * `next_str_to_pattern (patt)` = extract string till you see the Regex pattern
 * `next_str_to_len(string_len)` = extract string of length
+
+
+
+
+## Bitfields
+
+Bitfields can be a bit hairy, but SweepBuf makes it trivial to dissect it.
+
+For example this is the TCP Header field `flags_frame_offset`
+
+````c
+
+	uint16_t  flags_frame_offset {
+		4-bits  	header_len;
+		6-bits 		reserved;
+		flags {
+			1-bit	urg;
+			1-bit	ack;
+			1-bit	psh;
+			1-bit	rst;
+			1-bit	syn;
+			1-bit	fin;
+
+		}
+	}
+````
+
+You can dissect this in just one line 
+
+````lua
+	local flags_fo = payload:next_bitfield_u16( {4,6,1,1,1,1,1,1})
+
+	-- now flags_fo[1]=header_len
+	--     flags_fo[2]=reserved;
+	--     flags_fo[3]=urg
+	--     flags_fo[4]=ack 
+	--     etc etc 
+
+
+````
+
+
+### Methods reference
+
+These two methods are available for bit fields. They parse the bitfield and advance the internal pointer.   
+
+* `next_bitfield_u8 ( {bitfield-widths})` = parse next 8 bit as a bitfield 
+* `next_bitfield_u16 ( {bitfield-widths})` = parse next 16 bit as a bitfield 
+
+Both these methods 
+
+1. return a table containing requested fields from MSB to LSB order. 
+2. accept a `bitfield-widths` table. This is a LUA array consisting of Bitfield Widths in  MSB to LSB order. If you look at a protocol diagram this is from Left to Right order. 
+3. you are expected to supply the entire set of bit field widths.  Otherwise the function will return only the number of widths you supplied. 
 
 
 ## Working with records 

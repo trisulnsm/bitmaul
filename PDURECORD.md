@@ -1,9 +1,9 @@
 # PDURecord documentation
 
-A byte stream is nothing but raw bytes where you no idea where the message boundaries are. All protocols that run on top of TCP have some kind of message boundary markers. While you can count on TCP to provide a reliable byte stream it does not provide the message boundaries. The PDURecord library makes it very easy to work with this. We developed this after our expericence with writing dozens of decoders.
+A byte stream is just raw bytes where you no idea where one message ends and the other begins. All protocols that run on top of TCP have to deal with this one way or another. Almost always there are some mechanisms in the protocol to detect the message boundaries, such as a length field, or a delimiter, etc.  The PDURecord library makes it very easy to extract full messages from a bytestream. We developed this after our expericence with writing dozens of decoders.
 
-Typically a protocol dissector will use **PDURecord** to create full "messages" from a byte stream and then **SweepBuf** to extract fields from the message.
-
+> #### A typical usage. 
+We use **PDURecord** to create full "messages" from a byte stream and then **SweepBuf** to extract fields from the message.
 
 
 ## PDURecord interface
@@ -121,7 +121,8 @@ In the function  `what_next(..)` do not use `next_u..()` methods on the buffer p
 
 
 
-#### Full example 
+#### Examples  
 
-See our full APP [SSH Analyzer](https://github.com/trisulnsm/apps/tree/master/analyzers/ssh-alert)
+- See the [FIX protocol example](examples/fixascii/README.md)
+- See the Trisul Network Analytics APP [SSH Analyzer](https://github.com/trisulnsm/apps/tree/master/analyzers/ssh-alert)
 
