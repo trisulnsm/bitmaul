@@ -11,13 +11,20 @@ The `tcp.lua` script uses SweepBuf to dissect the  TCP protocol and extensions.
 
 ````
 jjoey@jjoeyu14:~/examples/tcp$ luajit tcp.lua 
-
 SB: Len=44 Seek=1 Avail=44 L=1 R=45 F=44
 Source Port : 49111
 Dest   Port : 443
 Sequence #  : 1304102061
 Ack #       : 1973447457
-Flags/FO    : 45072
+Flags/FO    : 
+    Header Len   : 11
+    Reserved     : 0
+           URG   : 0
+           ACK   : 1
+           PSH   : 0
+           RST   : 0
+           SYN   : 0
+           FIN   : 0
 Window Size : 350
 Checksum    : 31288
 Urg         : 0
