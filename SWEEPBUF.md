@@ -51,21 +51,23 @@ ts    = sw:next_u32()
 Under the covers SweepBuf automatically converts from network byte to host byte order `ntohs/ntohl` 
 
 
-### Methods Reference 
+### Functions  Reference 
 
 You would most likely be working with the following `next_` functions. These return the field at the current position and then advanced the internal pointer. 
 
-* next_u8 - unsigned byte
-* next_u16 - unsigned 16 bit number
-* next_u24 - unsigned 24
-* next_u32 - unsigned 32 
+#### Sweep  `next` functions
+
+* `next_u8` - unsigned byte
+* `next_u16` - unsigned 16 bit number
+* `next_u24` - unsigned 24
+* `next_u32` - unsigned 32 
 
 Then the Little Endian versions. Rarely network protocols use this. 
 
-* next_u8_le - unsigned 8 bits
-* next_u16_le - unsigned 16 bits when buffer contents in little endian 
-* next_u24_le
-* next_u32_le
+* `next_u8_le` - unsigned 8 bits
+* `next_u16_le` - unsigned 16 bits when buffer contents in little endian 
+* `next_u24_le`
+* `next_u32_le`
 
 These functions return the value but do not advance the internal pointer.
 
@@ -77,10 +79,25 @@ is the same as
 checksum = payload:next_32() 
 ````
 
-* u8 - unsigned 8 bits
-* u16 - unsigned 16 bits
-* u24 - unsigned 24 bits
-* u32 - unsigned 32 bits
+#### Get `u_()` functions
+
+These functions return the number at this position but without advancing the pointer. 
+
+* `u8` - unsigned 8 bits
+* `u16` - unsigned 16 bits
+* `u24` - unsigned 24 bits
+* `u32` - unsigned 32 bits
+
+You also have the u8_le, u16_le, .. lower endian versions of the above
+
+#### Peek functions
+
+These functions are used to PEEK ahead without moving the internal pointer. 
+
+* `peek_u8(offset)` - peek at an unsigned 8 bits at offset from current pointer 
+* `peek_u16(offset)` - peek at an unsigned 16 bit number at offset from current pointer 
+* `peek_u24(offset)`
+* `peek_u32(offset)`
 
 
 ## Extracting arrays of numbers 
@@ -99,23 +116,19 @@ These enable a common idiom found in network protocols, an array of fields.  You
 You can get the cipher suites into a LUA array 
 
 ````lua 
-local suite_len = payload:next_u16()
-local Ciphers = payload:next_u16_arr( suite_len/2)
-
--- or on a single line 
 
 local Ciphers = payload:next_u16_arr( payload:next_u16()/2)
 
 ````
 
 
-### Methods Reference 
+### Functions  Reference 
 
-You would most likely be working with the following `next_` functions. These return the field at the current position and then advanced the internal pointer. 
+These extract array of integers. 
 
-* next_u8_arr(nitems) = Array of nitems of u8
-* next_u16_arr(nitems) = Array of nitems of u16
-* next_u32_arr(nitems) = Array of nitems of u32
+* `next_u8_arr(nitems)` = Array of nitems of u8
+* `next_u16_arr(nitems)` = Array of nitems of u16
+* `next_u32_arr(nitems)` = Array of nitems of u32
 
 
 ## Extracting Strings
@@ -154,12 +167,10 @@ Here is an example of delimited string. By `\r\n` a common delimiter
 
 ### Methods reference
 
-These two methods should cover 99% of common network protocol idioms. 
+These two methods should cover 99% of common network protocol idioms dealing with strings. 
 
-* next_str_to_pattern (patt) = extract string till you see the Regex pattern
-* next_str_to_len(string_len) = extract string of length
-
-
+* `next_str_to_pattern (patt)` = extract string till you see the Regex pattern
+* `next_str_to_len(string_len)` = extract string of length
 
 
 ## Working with records 
@@ -197,12 +208,13 @@ You can use the fence methods to set the end position and loop until you hit the
 ````
 
 
-### Methods Reference 
+### Functions  Reference 
 
+Help handle records by setting when the record ends. 
 
-* push_fence(bytes_ahead) = Set a fence at bytes_ahead from the current position.
-* has_more() = Has the fence been hit 
-* pop_fence() = remove the fence, back to one level up.
+* `push_fence(bytes_ahead)` = Set a fence at bytes_ahead from the current position.
+* `has_more()` = Has the fence been hit 
+* `pop_fence()` = remove the fence, back to one level up.
 
 Sweepbuf allows you to nest fences to reflect nested record structures.
 

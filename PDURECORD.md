@@ -73,7 +73,6 @@ The `what_next()` function is where all the magic happens. It is called by the P
 
 
 
-
 ## Example
 
 The SSH protocol has the 1st record delimited by `\r\n\` and the other records delimited by a 32 bit length. (Simplifying here a a bit). So your dissector would be like
@@ -107,12 +106,19 @@ The SSH protocol has the 1st record delimited by `\r\n\` and the other records d
 ````
 
 
-
 Note here techniques 
 
 -  maintain a state ; you will need to do this because this pattern is very common in network protocol dissection. 
 -  based on state - call  `want_next()` or `want_pattern()`  on PDURecord 
 -  when you get a `on_message(..)` adjust the state if required, if you want to use someother method to determine the record boundary.
+
+
+## Common Errors
+
+### Use `peek()` in what_next()
+
+In the function  `what_next(..)` do not use `next_u..()` methods on the buffer passed. These move the internal pointers and hence may affect your calculations.  Use the `peek_(..)` functions. 
+
 
 
 #### Full example 

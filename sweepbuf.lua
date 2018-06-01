@@ -4,6 +4,7 @@
 --
 --  TODO: unoptimized but need profiling LuaJIT traces 
 --
+
 local SweepBuf  = {
 
   u8le = function(tbl)
@@ -50,9 +51,27 @@ local SweepBuf  = {
            string.byte(tbl.buff,tbl.seekpos+3)
   end,
 
+  peek_u8 = function(tbl, offset)
+    tbl:inc(offset)
+    local ret  = tbl:u8()
+    tbl:inc(-offset)
+    return ret
+  end,
   peek_u16 = function(tbl, offset)
     tbl:inc(offset)
     local reclen  = tbl:u16()
+    tbl:inc(-offset)
+    return reclen
+  end,
+  peek_u24 = function(tbl, offset)
+    tbl:inc(offset)
+    local reclen  = tbl:u24()
+    tbl:inc(-offset)
+    return reclen
+  end,
+  peek_u32 = function(tbl, offset)
+    tbl:inc(offset)
+    local reclen  = tbl:u32()
     tbl:inc(-offset)
     return reclen
   end,
@@ -180,12 +199,52 @@ local SweepBuf  = {
     tbl.fence[#tbl.fence]=nil 
   end,
 
+  bytes_left_to_fence=function(tbl)
+    return tbl.top_fence(tbl)-tbl.seekpos
+  end,
+
   split = function(tbl, str, delim)
     local ret = {}
     for word in str:gmatch("([^,]+)") do
       ret[#ret+1]=word
     end
     return ret
+  end,
+
+  next_bitfield_u8 = function(tbl, bitmap)
+	local v=tbl.next_u8(tbl)
+  	local nleft=8
+	local i=1
+	local ret={}
+	while nleft > 0 and i <= #bitmap do
+		local w=bitmap[i]
+		local m=math.pow(2,w)-1
+		local mask=bit.lshift(m,nleft-w)
+		local val1=bit.band(mask,v)
+		local val2=bit.rshift(val1,nleft-w)
+		ret[#ret+1]=val2 
+		nleft=nleft-w
+		i=i+1
+	end
+	return ret
+  end, 
+
+  next_bitfield_u16 = function(tbl, bitmap)
+	local v=tbl.next_u16(tbl)
+  	local nleft=16
+	local i=1
+	local ret={}
+	while nleft > 0 and i <= #bitmap do
+		local w=bitmap[i]
+		local m=math.pow(2,w)-1
+		local mask=bit.lshift(m,nleft-w)
+		local val1=bit.band(mask,v)
+		local val2=bit.rshift(val1,nleft-w)
+		ret[#ret+1]=val2 
+		nleft=nleft-w
+		i=i+1
+	end
+	return ret
   end,
 
   hexdump = function(tbl )
