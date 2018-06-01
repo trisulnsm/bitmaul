@@ -12,7 +12,7 @@ It consists of two libs you can use independently.
 
 
 > #### Usage
-Just put the files `sweepbuf.lua` and `pdurecord.lua` in the same directory as your LUA scripts. 
+> Just put the files `sweepbuf.lua` and `pdurecord.lua` in the same directory as your LUA scripts. 
 
 Take a look at the [TCP Analyzer](examples/tcp/README.md) example for a feel for what  SweepBuf looks like
 
