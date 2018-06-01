@@ -3,7 +3,7 @@
 A byte stream is just raw bytes where you no idea where one message ends and the other begins. All protocols that run on top of TCP have to deal with this one way or another. Almost always there are some mechanisms in the protocol to detect the message boundaries, such as a length field, or a delimiter, etc.  The PDURecord library makes it very easy to extract full messages from a bytestream. We developed this after our expericence with writing dozens of decoders.
 
 > #### A typical usage. 
-We use **PDURecord** to create full "messages" from a byte stream and then **SweepBuf** to extract fields from the message.
+> We use **PDURecord** to create full "messages" from a byte stream and then **SweepBuf** to extract fields from the message.
 
 
 ## PDURecord interface

@@ -3,7 +3,7 @@
 Sweepbuf works on a LUA string which represents a network payload byte array.  The library maintains an internal "pointer" so you can use methods like `next_XYZ(..)` to elegantly extract fields. Common network idioms like endian-ness, searching for terminators, looping over attribute values, are all supported. 
 
 > #### What does SweepBuf mean ? 
-A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
+> A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
 
 Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [Utility functions](#utility-methods) | [Full examples](#examples) 
 

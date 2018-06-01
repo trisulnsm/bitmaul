@@ -4,8 +4,8 @@ TCP analyzer
 The `tcp.lua` script uses SweepBuf to dissect the  TCP protocol and extensions.
 
 > #### Usage
- Copy the `sweepbuf.lua` into this directory before running as shown below 
- $ luajit tcp.lua 
+> Copy the `sweepbuf.lua` into this directory before running as shown below 
+> To run `$ luajit tcp.lua` 
 
 
 ### Code
