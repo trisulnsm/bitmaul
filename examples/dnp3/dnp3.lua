@@ -51,7 +51,11 @@ local Dnp3Dissector  = {
 	payload:push_fence(payload:bytes_left())
 	while payload:has_more() do
 		if payload:bytes_left_to_fence()>=18 then
-			appdata_buffers[#appdata_buffers+1]= payload:next_str_to_len(16)
+			if #appdata_buffers == 0 then 
+				appdata_buffers[#appdata_buffers+1]= payload:next_str_to_len(15)
+			else
+				appdata_buffers[#appdata_buffers+1]= payload:next_str_to_len(16)
+			end
 		else 
 			appdata_buffers[#appdata_buffers+1]= payload:next_str_to_len(payload:bytes_left_to_fence()-2)
 		end
@@ -85,12 +89,27 @@ local Dnp3Dissector  = {
 		local variation=swbuf:next_u8()
 
 		local qualifier=swbuf:next_bitfield_u8( {1,3,4} ) 
+		local opc=qualifier[2]
+		local rsc=qualifier[3]
+		local object_size= DNP_Group_Var_Bitlength[group][variation] 
 
 		print("Group="..group)
 		print("Var="..variation)
-		print("Qualifier.object_prefix_code="..qualifier[2])
-		print("Qualifier.range_specifier_code="..qualifier[3])
-		break
+		print("BitLength= ".. object_size)
+
+
+		print("                                                OPC = ".. opc)
+		print("                                                RSC = ".. rsc)
+
+
+		local nobjects = DNP3_RSC_Num_Objects_Functions[rsc](swbuf) 
+
+		print("                                                NOBJ = ".. nobjects)
+
+		local total_object_size = math.ceil((nobjects * object_size) / 8 )
+		print("                                                TOTALOBJSIZE = ".. total_object_size)
+
+		swbuf:skip( total_object_size) 
 
 	end
 

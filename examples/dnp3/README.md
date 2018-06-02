@@ -11,9 +11,8 @@ Another example of BITMAUL
 Credits
 --------
 
-> I found the DNP3 PCAP file from https://github.com/automayt/ICS-pcap  
-
-> DNP3 Specification PDF : https://www.dnp.org/DNP3Downloads/DNP3%20AN2013-004b%20Validation%20of%20Incoming%20DNP3%20Data.pdf
+1. I found the DNP3 PCAP file from https://github.com/automayt/ICS-pcap  
+2. DNP3 Specification PDF : https://www.dnp.org/DNP3Downloads/DNP3%20AN2013-004b%20Validation%20of%20Incoming%20DNP3%20Data.pdf
 
 
 
