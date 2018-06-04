@@ -169,7 +169,8 @@ Here is an example of delimited string. By `\r\n` a common delimiter
 
 These two methods should cover 99% of common network protocol idioms dealing with strings. 
 
-* `next_str_to_pattern (patt)` = extract string till you see the Regex pattern
+* `next_str_to_pattern (patt)` = extract string till you see the Regex pattern, include the pattern in the matched string. Use this to match delimiter patterns between PDUs. 
+* `next_str_to_pattern_exclude (patt)` = extract string till you see the next pattern, dont include the pattern in the matched string. Use this for matching marker bytes that appear at the START of each PDU.
 * `next_str_to_len(string_len)` = extract string of length
 
 

@@ -107,10 +107,22 @@ local SweepBuf  = {
 
 
   next_str_to_pattern = function(tbl, patt)
-    local f,l =string.find(tbl.buff,patt,tbl.seekpos,false)  -- last param = true for non regex 
+    local f,l =string.find(tbl.buff,patt,tbl.seekpos,false)  -- last param = false=regex, true=not-regex 
     if f then
         local r = string.sub(tbl.buff,tbl.seekpos,l)
         tbl.seekpos = l+1
+        return r
+    else
+        return nil 
+    end
+  end,
+
+  -- exclude the pattern matched 
+  next_str_to_pattern_exclude = function(tbl, patt)
+    local f,l =string.find(tbl.buff,patt,tbl.seekpos+1,true)  -- last param = false=regex, true=not-regex 
+    if f then
+        local r = string.sub(tbl.buff,tbl.seekpos,f-1)
+        tbl.seekpos = f
         return r
     else
         return nil 
@@ -252,7 +264,7 @@ local SweepBuf  = {
     local bytes_per_line=16
     while offset < #tbl.buff  do
       io.write(string.format("%08X ", offset-1))
-      local bytes = string.sub(tbl.buff,offset,offset+bytes_per_line)
+      local bytes = string.sub(tbl.buff,offset,offset+bytes_per_line-1)
       for b in bytes:gmatch('.') do
         io.write(('%02X '):format(b:byte()))
       end

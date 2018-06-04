@@ -18,7 +18,8 @@ The following methods are in PDU record
 | --- | --- |
 | `push_chunk(sequence_no, bytes)` | Push a chunk of payload starting at the sequence number. Repeatedly pushing the same chunk ( `bytes` with the same `sequence_number` ) has no effect. PDURecord is smart enough to recognize overlaps. The only requirement for the caller is you cant push a chunk that will create a hole |
 | `want_next(num_bytes)` | The dissector calls `want_next(100)` when it determines that the record boundary is 100 bytes away. So this method creates a PDU from current position to current_position + 100 bytes |
-| `want_to_pattern(regex)` | The dissector calls `want_to_pattern("\r\n")` if it determines the boundary is at the next occurrance of \r\n |
+| `want_to_pattern(regex)` | The dissector calls `want_to_pattern("\r\n")` if it determines the boundary is at the next occurrance of \r\n. Returns the pattern as well that ends the PDU. |
+| `want_to_start_pattern(string)` | The dissector calls `want_to_start_pattern("\xff\xff\xff\xff")` if it determines the start of each message PDU is marked by the pattern. Note that *regex* is not supported for this version. Use `want_to_start_patter()` when parsing protocols that START PDU with a marker pattern. Use `want_pattern()` when working with protocols that END PDU with a pattern |
 | `skip_next(num_bytes)` | The dissector calls `skip_next(10000)` if it determines the record boundary is 10000 bytes away but we are not interested in this message. So your dissectors `on_message` will not be called. This is useful when you are not interested in some types of messages such as TLS Encrypted Application Data records |
 | `abort` | Signal that we are no longer interested in this flow | 
 
