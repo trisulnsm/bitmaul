@@ -6,10 +6,15 @@ A [FIX - Financial Information Exchange](https://en.wikipedia.org/wiki/Financial
 
 ### The files
 
+The main dissector file.
+
 1. `fixp.lua` - the main file protocol dissector. Segments the byte stream into complete FIX messages and also handles completed payloads. 
-2. `fixtypes.lua` - just a file containing Message Types mappings 
-3. `test_file.lua` -  Driver using binary file containing FIX bytestreamas input 
-4. `test_live_trisul.lua` - Driver using Network Analytics- either live capture or PCAP file import
+
+Helpers
+
+1. `fixtypes.lua` - just a file containing Message Types mappings 
+2. `test_file.lua` -  Driver using binary file containing FIX bytestreamas input 
+3. `test_live_trisul.lua` - Driver using Network Analytics- either live capture or PCAP file import
 
 ### Data 
 
