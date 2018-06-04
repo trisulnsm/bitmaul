@@ -1,16 +1,15 @@
 DNP3 analyzer 
 =============
 
-Another example of BITMAUL.  
+Another example of BITMAUL - the LuaJIT protocol dissection helper library.  
 
 We chose a relatively complex protocol [DNP3 protocol](https://www.dnp.org/Pages/AboutDefault.aspx) to show how BITMAUL can make it dramatically easier to write dissectors. 
 
 ## Explanation
 
-First a bit about the DNP3 protocol. DNP stands for Distrbuted Network Protocol , it is used mainly in industrial control systems.  The DNP3 protocol typically runs on top of TCP, but with its own transport layer. After extracting the DNP3 PDU, you have to reassemble "application data chunks" to get the full message. 
+DNP3 it is used mainly in industrial control systems. The DNP3 protocol typically runs on top of TCP, but with its own transport layer. After extracting the DNP3 PDU, you have to reassemble "application data chunks" to get the full message. 
 
 The stack looks like this on Wireshark.
-
 
 ![dnp3picture.png](dnp3picture.png)
 

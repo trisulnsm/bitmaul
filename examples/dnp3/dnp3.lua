@@ -1,8 +1,7 @@
--- fixparse.lua
+-- dnp3.lua
 -- 
 -- Uses BitMaul to handle  DNP3 segmentation and dissection 
 -- 
-
 
 local SB = require 'sweepbuf'   -- sweepbuf part of BitMAUL
 local CRC= require 'crc'      -- CRC function - demo
@@ -21,15 +20,15 @@ local Dnp3Dissector  = {
 
     -- we need atleast 10 bytes to decide, that is where the length field can be found
     -- 
-  if swbuf:bytes_left()  > 10 then 
-    local tlen = swbuf:peek_u8(2)  -- use peek(..) to preserve internal pointer, not next(..)
-    local n_checksums = 1
-    local q,r = math.modf( (tlen - 5) / 16) 
-    n_checksums =n_checksums + q 
-    if r > 0 then n_checksums = n_checksums + 1 end 
+    if swbuf:bytes_left()  > 10 then 
+        local tlen = swbuf:peek_u8(2)  -- use peek(..) to preserve internal pointer, not next(..)
+        local n_checksums = 1
+        local q,r = math.modf( (tlen - 5) / 16) 
+        n_checksums =n_checksums + q 
+        if r > 0 then n_checksums = n_checksums + 1 end 
 
-    -- want_next() - tell PDURecord we want the next X bytes as full PDU
-    pdur:want_next(3 + swbuf:peek_u8(2)  + 2*n_checksums ) 
+        -- want_next() - tell PDURecord we want the next X bytes as full PDU
+        pdur:want_next(3 + swbuf:peek_u8(2)  + 2*n_checksums ) 
     end
 
   end,
