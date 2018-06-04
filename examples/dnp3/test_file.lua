@@ -1,8 +1,10 @@
--- test_file.lua
--- 
--- Reads from a FILE and tests dissector 
 --
-
+-- test_file.lua - Test a PDU Record based dissector by pumping chunks of payload
+-- 
+-- Reads from a FILE containing raw TCP stream bytes and tests dissector 
+-- by randomly reading nbytes from fiel and pumping the PDU record.
+-- this simulates a network reassembly scenario
+--
 local PDURec = require'pdurecord'
 local Dissector=require 'dnp3'
 
