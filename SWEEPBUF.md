@@ -5,7 +5,7 @@ Sweepbuf works on a LUA string which represents a network payload byte array.  T
 > #### What does SweepBuf mean ? 
 > A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
 
-Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [Utility functions](#utility-methods) | [Full examples](#examples) 
+Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [IP Addresses](#ip-addresses) |   [Utility functions](#utility-methods) | [Full examples](#examples) 
 
 ## Construction
 
@@ -19,6 +19,8 @@ sw=SWP.new( bytestring)
 checksum=sw:next_u16()  -- use sw 
 
 ````
+
+------------
 
 ## Extracting numbers 
 
@@ -100,6 +102,9 @@ These functions are used to PEEK ahead without moving the internal pointer.
 * `peek_u32(offset)`
 
 
+------------
+
+
 ## Extracting arrays of numbers 
 
 These enable a common idiom found in network protocols, an array of fields.  You can consider the following specification of the SSL/TLS protocol.
@@ -129,6 +134,9 @@ These extract array of integers.
 * `next_u8_arr(nitems)` = Array of nitems of u8
 * `next_u16_arr(nitems)` = Array of nitems of u16
 * `next_u32_arr(nitems)` = Array of nitems of u32
+
+
+------------
 
 
 ## Extracting Strings
@@ -175,6 +183,7 @@ These two methods should cover 99% of common network protocol idioms dealing wit
 
 
 
+----
 
 ## Bitfields
 
@@ -228,6 +237,29 @@ Both these methods
 3. you are expected to supply the entire set of bit field widths.  Otherwise the function will return only the number of widths you supplied. 
 
 
+------
+
+## IP Addresses 
+
+Two methods to get IPv4 addresses in dotted decimal format
+````lua
+	local ip = payload:next_ipv4() -- a single IP Address as a dotted-decimal string 
+
+	local iplist = payload:next_ipv4_arr( 10)  -- an array of dotted-decimal strings 
+
+````
+
+
+### Methods reference
+
+
+* `next_ipv4 ()` = get next 4 bytes are dotted-decimal IP v4 address
+* `next_ipv4_arr(nitems)` = get next `nitems` IPv4 addrsses as an array of strings (dotted-decimal IPv4) 
+
+
+------
+
+
 ## Working with records 
 
 Records are another common pattern in network protocols. There is a record of some sort that is repeated until a particular end position.
@@ -274,6 +306,8 @@ Help handle records by setting when the record ends.
 Sweepbuf allows you to nest fences to reflect nested record structures.
 
 
+------------------
+
 ## Utility methods
 
 * `hexdump()` prints a hexdump of the byte buffer in a canonical format.
@@ -283,6 +317,9 @@ Sweepbuf allows you to nest fences to reflect nested record structures.
 * `inc(nbytes)`  move the internal pointer by n bytes. 
 * `skip(nbytes)`  skip n bytes. 
 * `bytes_left` how many bytes left to process. End - current internal pointer position
+
+
+------------------
 
 
 ## Examples

@@ -259,6 +259,19 @@ local SweepBuf  = {
 	return ret
   end,
 
+  next_ipv4 = function(tbl)
+  	return string.format("%d.%d.%d.%d", tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8())
+  end,
+
+  next_ipv4_arr = function(tbl, nitems )
+    local ret = {}
+    while nitems > 0 do
+      ret[#ret+1] = tbl:next_ipv4()
+      nitems = nitems - 1
+    end
+    return ret;
+  end,
+
   hexdump = function(tbl )
     local offset=1
     local bytes_per_line=16
