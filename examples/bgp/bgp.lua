@@ -4,6 +4,9 @@
 --
 
 local SB=require'sweepbuf'
+local Inspect=require'inspect' 
+
+require'handlers'
 
 local BGPDissector  = {
 
@@ -11,6 +14,7 @@ local BGPDissector  = {
   -- 
   what_next =  function( tbl, pdur, swbuf)
 
+	-- BGP PDU start with a marker 
     pdur:want_to_start_pattern("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff")
 
   end,
@@ -24,10 +28,22 @@ local BGPDissector  = {
 
 	sw:hexdump() 
 
+	-- fields here in this table 
+	local fields = {}
 
-	print("---")
+	sw:skip(16); 
+	fields.length = sw:next_u16();
+	fields.msgtype = sw:next_u8(); 
+	fields.msgname = BGP_Message_Types[fields.msgtype]
 
 
+	local handlerfn = BGP_Handlers[fields.msgtype]
+	if handlerfn then
+		fields.msg = handlerfn(sw)
+	end
+
+
+	print(Inspect(fields))
   
   end ,
 
