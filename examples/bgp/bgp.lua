@@ -11,11 +11,10 @@ require'handlers'
 local BGPDissector  = {
 
   -- BGP is length terminated but it also demarcated by 16 0xff Bytes, we use that 
-  -- 
   what_next =  function( tbl, pdur, swbuf)
 
-	-- BGP PDU start with a marker 
-    pdur:want_to_start_pattern("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff")
+      -- BGP PDU start with a marker 
+      pdur:want_to_start_pattern("\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff")
 
   end,
 
@@ -23,31 +22,30 @@ local BGPDissector  = {
   -- we just print the fields here 
   on_record = function( tbl, pdur, strbuf)
 
-  	local sw = SB.new(strbuf)
+    local sw = SB.new(strbuf)
+
+    -- fields here in this table 
+    local fields = {}
+
+    sw:skip(16); 
+    fields.length = sw:next_u16();
+    fields.msgtype = sw:next_u8(); 
+    fields.msgname = BGP_Message_Types[fields.msgtype]
 
 
-	sw:hexdump() 
-
-	-- fields here in this table 
-	local fields = {}
-
-	sw:skip(16); 
-	fields.length = sw:next_u16();
-	fields.msgtype = sw:next_u8(); 
-	fields.msgname = BGP_Message_Types[fields.msgtype]
+    local handlerfn = BGP_Handlers[fields.msgtype]
+    if handlerfn then
+      fields.msg = handlerfn(sw)
+    end
 
 
-	local handlerfn = BGP_Handlers[fields.msgtype]
-	if handlerfn then
-		fields.msg = handlerfn(sw)
-	end
-
-
-	print(Inspect(fields))
-  
-  end ,
+    print(Inspect(fields))   -- Inspect is from inspect.lua - pretty prints the Lua Table 
+    
+    end ,
 
 }
+
+
 
 -- so return a new dissector
 -- 
