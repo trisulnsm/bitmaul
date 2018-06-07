@@ -272,6 +272,19 @@ local SweepBuf  = {
     return ret;
   end,
 
+  
+  -- attr_value_regex = 2 captures 
+  split_fields=function(tbl, attr_value_regex)
+
+	local fields = {}
+  	for k,v in tbl.buff:gmatch(attr_value_regex) do 
+		fields[k]=v
+	end
+	return fields
+
+  end,
+
+
   hexdump = function(tbl )
     local offset=1
     local bytes_per_line=16
