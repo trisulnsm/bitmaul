@@ -24,6 +24,9 @@ local fields=sw:split_fields_fast(": ","\r\n")
 
 > 10-Million iterations of parsing the string in file header.txt 
 
+Machine : Intel(R) Core(TM) i3-2120 CPU @ 3.30GHz / cache size	: 3072 KB
+
+
 ### 2.3 Gbps - LuaJIT 2.0.4 
 
 ````
