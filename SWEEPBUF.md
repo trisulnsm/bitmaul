@@ -5,7 +5,7 @@ Sweepbuf works on a LUA string which represents a network payload byte array.  T
 > #### What does SweepBuf mean ? 
 > A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
 
-Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [IP Addresses](#ip-addresses) |   [Utility functions](#utility-methods) | [Full examples](#examples) 
+Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Text based headers](#text-based-headers) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [IP Addresses](#ip-addresses) |   [Utility functions](#utility-methods) | [Full examples](#examples) 
 
 ## Construction
 
@@ -27,7 +27,7 @@ checksum=sw:next_u16()  -- use sw
 For example if a part of your  protocol is 
 
 ````cpp
-..
+...
 byte        message_type;       /* 1 byte  */
 uint16_t    message_length;     /* 2 bytes */   
 uint32_t    timestamp;          /* 4 bytes */
@@ -111,8 +111,8 @@ These enable a common idiom found in network protocols, an array of fields.  You
 
 ````c
  {
- 	uint_16  cipher_suite_bytes;
- 	uint_16  cipher_suites[]
+  uint_16  cipher_suite_bytes;
+  uint_16  cipher_suites[]
  }
 
 ````
@@ -149,27 +149,27 @@ In network protocols , strings are generally represented by one of two mechanism
 Here is an example of length prefixed string.
 
 ````c
-	uint16_t  username_len
-	char      username[username_len]
+  uint16_t  username_len
+  char      username[username_len]
 ````
 
 This is a length prefixed string and the length field is a u
 ````lua
-	local slen = payload:next_u16()
-	local username = payload:next_str_to_len(slen)
+  local slen = payload:next_u16()
+  local username = payload:next_str_to_len(slen)
 
 ````
 
 Or in a single line 
 ````lua
-	local username = payload:next_str_to_len( payload:next_u16())
+  local username = payload:next_str_to_len( payload:next_u16())
 ````
 
 
 Here is an example of delimited string. By `\r\n` a common delimiter
 
 ````lua
-	local username = payload:next_str_to_pattern( '\r\n')
+  local username = payload:next_str_to_pattern( '\r\n')
 ````
 
 
@@ -177,8 +177,8 @@ Here is an example of delimited string. By `\r\n` a common delimiter
 
 These two methods should cover 99% of common network protocol idioms dealing with strings. 
 
-* `next_str_to_pattern (patt)` = extract string till you see the Regex pattern, include the pattern in the matched string. Use this to match delimiter patterns between PDUs. 
-* `next_str_to_pattern_exclude (patt)` = extract string till you see the next pattern, dont include the pattern in the matched string. Use this for matching marker bytes that appear at the START of each PDU.
+* `next_str_to_pattern (patt (, pattern_is_plain) )` = extract string till you see the Regex pattern, include the pattern in the matched string. Use this to match delimiter patterns between PDUs.  The second optional parameter _is_plain_ is used to tell the framework whether the pattern is a plain string or a regular expression. To use a regex pattern, set the second parameter to `false` Example: `next_str_to_pattern("(%S+)%s+HTTP", false)`  If using a plain pattern, you can just omit this parameter. 
+* `next_str_to_pattern_exclude (patt (, pattern_is_plain) )` = extract string till you see the next pattern, dont include the pattern in the matched string. Use this for matching marker bytes that appear at the START of each PDU. The second optional parameter `is_plain` is true when pattern is plain string and false when the pattern is a regex. If using a plain pattern, you can just omit this parameter. 
 * `next_str_to_len(string_len)` = extract string of length
 
 
@@ -193,31 +193,31 @@ For example this is the TCP Header field `flags_frame_offset`
 
 ````c
 
-	uint16_t  flags_frame_offset {
-		4-bits  	header_len;
-		6-bits 		reserved;
-		flags {
-			1-bit	urg;
-			1-bit	ack;
-			1-bit	psh;
-			1-bit	rst;
-			1-bit	syn;
-			1-bit	fin;
+  uint16_t  flags_frame_offset {
+    4-bits    header_len;
+    6-bits    reserved;
+    flags {
+      1-bit urg;
+      1-bit ack;
+      1-bit psh;
+      1-bit rst;
+      1-bit syn;
+      1-bit fin;
 
-		}
-	}
+    }
+  }
 ````
 
 You can dissect this in just one line 
 
 ````lua
-	local flags_fo = payload:next_bitfield_u16( {4,6,1,1,1,1,1,1})
+  local flags_fo = payload:next_bitfield_u16( {4,6,1,1,1,1,1,1})
 
-	-- now flags_fo[1]=header_len
-	--     flags_fo[2]=reserved;
-	--     flags_fo[3]=urg
-	--     flags_fo[4]=ack 
-	--     etc etc 
+  -- now flags_fo[1]=header_len
+  --     flags_fo[2]=reserved;
+  --     flags_fo[3]=urg
+  --     flags_fo[4]=ack 
+  --     etc etc 
 
 
 ````
@@ -243,9 +243,9 @@ Both these methods
 
 Two methods to get IPv4 addresses in dotted decimal format
 ````lua
-	local ip = payload:next_ipv4() -- a single IP Address as a dotted-decimal string 
+local ip = payload:next_ipv4() -- a single IP Address as a dotted-decimal 
 
-	local iplist = payload:next_ipv4_arr( 10)  -- an array of dotted-decimal strings 
+local iplist = payload:next_ipv4_arr( 10)  -- an array of dotted-decimal str 
 
 ````
 
@@ -267,30 +267,31 @@ Records are another common pattern in network protocols. There is a record of so
 Say you have something like
 
 ````c
-	
-	Extensions = struct {
-		uint16_t  ext_type;
-		uint16_t  ext_len;
-	}
 
-	uint16_t  extensions_length;
-	Extensions extensions;
+Extensions = struct {
+  uint16_t  ext_type;
+  uint16_t  ext_len;
+}
+
+uint16_t  extensions_length;
+Extensions extensions;
 ````
 
 
 You can use the fence methods to set the end position and loop until you hit the end.
 
 ````lua
-    payload:push_fence(payload:next_u16())
+  payload:push_fence(payload:next_u16())
 
-    local snihostname  = nil
+  local snihostname  = nil
 
-    while payload:has_more() do
-	          local ext_type = payload:next_u16()
-	          local ext_len =  payload:next_u16()
-	          if ext_type == 10 then
-	end
-	payload:pop_fence() 
+  while payload:has_more() do
+    local ext_type = payload:next_u16()
+    local ext_len =  payload:next_u16()
+    if ext_type == 10 then
+       .. 
+  end
+  payload:pop_fence() 
 
 ````
 
@@ -304,6 +305,47 @@ Help handle records by setting when the record ends.
 * `pop_fence()` = remove the fence, back to one level up.
 
 Sweepbuf allows you to nest fences to reflect nested record structures.
+
+
+
+------
+
+## Text based headers  
+
+The big example of this is HTTP headers, which are of the form.
+
+````lua
+Host: www.google-analytics.com
+Accept: image/png,image/*;q=0.8,*/*;q=0.5
+Accept-Language: en-us,en;q=0.5
+Referer: http://www.reddit.com/
+
+````
+
+BITMAUL has two simple methods `split_fields` and `split_fields_fast` . These functions make it trivial to parse this into a LUA table in one call. The pattern is shown below 
+
+````lua
+local http = payload:split_fields("(%S+):%s(%S+)","\r\n")
+
+assert http['Referer'] == "http://www.reddit.com"
+
+````
+
+
+### Methods reference
+
+
+* `split_fields ( regex_with_two_captures, record_delimiter)` : The first parameters is a LUA regex with two captures. Capture 1 is the field name and Capture 2 is the field value.  The second parameter is the record delimiter. Return value = LUA table of the form _{field-name, field-value}_ 
+* `split_fields_fast ( field_delimiter, record_delimiter)` : A faster but less flexible version of the `split_fields` method.  Field delimiter is the separator between the name and value. Record delimiter is a string that separates records. Return value = LUA table of the form _{field-name, field-value}_ 
+
+
+### Notes
+
+Use the fast version if you trust the input to be correct without extra spaces.  The following snippet illustrates this. 
+
+````lua
+local fields=sw:split_fields_fast(": ","\r\n")
+````
 
 
 ------------------

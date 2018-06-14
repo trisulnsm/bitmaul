@@ -1,0 +1,9 @@
+GET /__utm.gif?utmwv=5.5.1&utms=1&utmn=720496082&utmhn=www.reddit.com&utme=8(site*srpath*usertype*uitype)9(%20reddit.com*%20reddit.com-GET_listing*guest*web)11(3!2)&utmcs=UTF-8&utmsr=2560x1600&utmvp=1288x792&utmsc=24-bit&utmul=en-us&utmje=1&utmfl=13.0%20r0&utmdt=reddit%3A%20the%20front%20page%20of%20the%20internet&utmhid=2129416330&utmr=-&utmp=%2F&utmht=1400862512705&utmac=UA-12131688-1&utmcc=__utma%3D55650728.585571751.1400862513.1400862513.1400862513.1%3B%2B__utmz%3D55650728.1400862513.1.1.utmcsr%3D(direct)%7Cutmccn%3D(direct)%7Cutmcmd%3D(none)%3B&utmu=qR~ HTTP/1.1
+Host: www.google-analytics.com
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:15.0) Gecko/20100101 Firefox/15.0.1
+Accept: image/png,image/*;q=0.8,*/*;q=0.5
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Referer: http://www.reddit.com/
+

@@ -106,8 +106,9 @@ local SweepBuf  = {
   end,
 
 
-  next_str_to_pattern = function(tbl, patt)
-    local f,l =string.find(tbl.buff,patt,tbl.seekpos,false)  -- last param = false=regex, true=not-regex 
+  next_str_to_pattern = function(tbl, patt, is_plain)
+  	is_plain=is_plain or true 
+    local f,l =string.find(tbl.buff,patt,tbl.seekpos,is_plain)  -- last param = false=regex, true=not-regex 
     if f then
         local r = string.sub(tbl.buff,tbl.seekpos,l)
         tbl.seekpos = l+1
@@ -118,8 +119,9 @@ local SweepBuf  = {
   end,
 
   -- exclude the pattern matched 
-  next_str_to_pattern_exclude = function(tbl, patt)
-    local f,l =string.find(tbl.buff,patt,tbl.seekpos+1,true)  -- last param = false=regex, true=not-regex 
+  next_str_to_pattern_exclude = function(tbl, patt, is_plain)
+  	is_plain=is_plain or true 
+    local f,l =string.find(tbl.buff,patt,tbl.seekpos+1,is_plain)  -- last param = false=regex, true=not-regex 
     if f then
         local r = string.sub(tbl.buff,tbl.seekpos,f-1)
         tbl.seekpos = f
@@ -282,6 +284,28 @@ local SweepBuf  = {
 	end
 	return fields
 
+  end,
+
+  -- split_fields_fast : No regex in delim 
+  split_fields_fast=function(tbl, delim_name, delim_record)
+
+  	local len=#tbl.buff
+	local pos=tbl.seekpos
+
+	local ret={}
+
+	while pos<len-#delim_record do
+		local f1,l1 = string.find(tbl.buff, delim_name, pos, true)
+		local f2,l2 = string.find(tbl.buff, delim_record, l1+1, true)
+
+		local f=string.sub(tbl.buff,pos,f1-1)
+		local v=string.sub(tbl.buff,l1+1,f2-1)
+		pos=l2+1
+
+		ret[f]=v
+	end 
+
+	return ret
   end,
 
 
