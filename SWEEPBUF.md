@@ -5,7 +5,7 @@ Sweepbuf works on a LUA string which represents a network payload byte array.  T
 > #### What does SweepBuf mean ? 
 > A typical network protocol dissector calls a sequence of next_XXX(). This return the field at that position and then advanced the internal pointer. This reflects typical network protocol design which enables a single pass sweep. Hence the name _SweepBuf_ for "Sweep a Buffer". 
 
-Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Text based headers](#text-based-headers) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [IP Addresses](#ip-addresses) |   [Utility functions](#utility-methods) | [Full examples](#examples) 
+Doc links :  [Construction](#construction) | [Extracting number fields](#extracting-numbers) | [Extracting arrays](#extracting-arrays-of-numbers) | [String fields](#extracting-strings) | [Text based headers](#text-based-headers) | [Record fields](#working-with-records) | [Bitfields](#bitfields) | [IP and MAC Addresses](#ip-addresses) |   [Utility functions](#utility-methods) | [Full examples](#examples) 
 
 ## Construction
 
@@ -71,6 +71,9 @@ Then the Little Endian versions. Rarely network protocols use this.
 * `next_u24_le`
 * `next_u32_le`
 
+Then a helper enum function
+* `next_u8_enum( lookup_table) ` - unsigned byte , returns an array [value, enumerated string] if there is a match on the supplied lookup table
+
 These functions return the value but do not advance the internal pointer.
 
 ````lua 
@@ -79,6 +82,10 @@ payload:inc(4)
 
 is the same as
 checksum = payload:next_32() 
+
+etype = payload:next_u8_enum( { [1] = "DHCPREQUEST", [2]="DHCPRESPONSE"} )
+-- will return { 1, "DHCPREQUEST"} or {5, ""} depending on a match
+
 ````
 
 #### Get `u_()` functions
@@ -255,6 +262,7 @@ local iplist = payload:next_ipv4_arr( 10)  -- an array of dotted-decimal str
 
 * `next_ipv4 ()` = get next 4 bytes are dotted-decimal IP v4 address
 * `next_ipv4_arr(nitems)` = get next `nitems` IPv4 addrsses as an array of strings (dotted-decimal IPv4) 
+* `next_mac ()` = get next 6 bytes as a MAC address. Useful for L2 protocol analyzers 
 
 
 ------

@@ -88,6 +88,18 @@ local SweepBuf  = {
     return r
   end,
 
+  -- ret[1]=value, ret[2]=enum 
+  next_u8_enum = function(tbl, enumvals )
+    local r = tbl:u8()
+    tbl:inc(1)
+	if enumvals[r] then 
+		return {r,enumvals[r]}
+	else 
+		return {r,""} 
+	end 
+  end,
+
+
   next_u8_arr = function(tbl,nitems)
     local ret = {}
     while nitems > 0 do
@@ -274,6 +286,9 @@ local SweepBuf  = {
     return ret;
   end,
 
+  next_mac = function(tbl)
+  	return string.format("%02X:%02X:%02X:%02X:%02X:%02X", tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8() )
+  end,
   
   -- attr_value_regex = 2 captures 
   split_fields=function(tbl, attr_value_regex)
