@@ -2,9 +2,6 @@ local SWB=require'sweepbuf'
 local JSON=require'JSON'
 require 'dhcp-enums'
 
-
-
-
 -- 
 -- return a LUA table -- field value
 -- 
@@ -13,7 +10,6 @@ function do_dissect( buff)
 	local swb=SWB.new(buff)
 
 	local ret={}
-
 
 	ret.op      	= swb:next_u8_enum( { "BOOTREQUEST", "BOOTREPLY"})
 	ret.htype 		= swb:next_u8() 
@@ -62,14 +58,41 @@ function do_dissect( buff)
 	  else 
 		  local l= swb:next_u8()
 		  local v= swb:next_str_to_len(l) 
-		  ret.options[#ret.options+1] =  {  et, v } 
+		  ret.options[#ret.options+1] =  {  et, {v} } 
 	  end 
     end
 
+	return ret
 
-	print(JSON:encode(ret))
+end
 
+-- just a lookup by extention number 
+-- 
+function find_extension(tbl, eid)
+	for _,v in ipairs(tbl)
+	do 
+		local et=v[1]
+		if et[1]==eid then return  table.concat(v[2]," ")  end
+	end
+	return ""
+end
 
+--
+-- an Alert message whenever a Client requests, or is granted or denied 
+-- 
+function make_alert_message( fields)
+
+	print(JSON:encode(fields))
+
+	local optstr = find_extension(fields.options,53) 
+	if optstr == "5 DHCPACK" then 
+		return ("Client with MAC ".. fields.chaddr.." obtains a new IP address ".. fields.yiaddr )
+	elseif  optstr == "3 DHCPREQUEST" then 
+		local cname = find_extension(fields.options,12)
+		return ("Client with MAC ".. fields.chaddr.." and name ".. cname.. " requests IP address ")
+	else
+		return ""
+    end
 
 
 end

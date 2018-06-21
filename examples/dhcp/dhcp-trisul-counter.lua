@@ -34,8 +34,11 @@ TrisulPlugin = {
     -- 
     onpacket = function(engine,layer)
 
-		local rstr = do_dissect( layer:rawbytes():tostring() )
-		print(rstr) 
+		local fields  = do_dissect( layer:rawbytes():tostring() )
+
+		local alert_msg = make_alert_message( fields) 
+		print(alert_msg)
+
     end,
 
 
