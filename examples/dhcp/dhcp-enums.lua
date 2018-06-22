@@ -1,3 +1,8 @@
+-- 
+-- DHCP Enums
+-- Straight out of IANA 
+-- 
+
 MESSAGE_TYPES = {
 [0]="Pad",
 [1]="Subnet Mask",

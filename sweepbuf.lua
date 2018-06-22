@@ -1,9 +1,8 @@
 -- sweepbuf.lua
---  a one-pass scan buffer 
---  for packet dissection 
+--  a one-pass scan buffer for packet dissection part of BITMAUL  
 --
---  TODO: unoptimized but need profiling LuaJIT traces 
---
+--  TODO: unoptimized  , see LuaJIT traces in prof directory
+-- 
 
 local SweepBuf  = {
 
@@ -88,6 +87,32 @@ local SweepBuf  = {
     return r
   end,
 
+  -- 
+  next_uN = function(tbl, nbytes)
+    local r 
+	if nbytes==1 then 
+		r=tbl:next_u8()
+	elseif nbytes==2 then
+		r=tbl:next_u16()
+	elseif nbytes==3 then
+		r=tbl:next_u24()
+	elseif nbytes==4 then
+		r=tbl:next_u32()
+	else
+		error("next_uN : only supports 1,2,3,4 byte numbers. Given="..nbytes)
+	end
+    return r
+  end,
+
+  next_uN_enum = function(tbl, nbytes, enumvals)
+    local r = tbl:next_uN(nbytes)
+	if enumvals[r] then 
+		return {r,enumvals[r]}
+	else 
+		return {r,""} 
+	end 
+  end,
+  
   -- ret[1]=value, ret[2]=enum 
   next_u8_enum = function(tbl, enumvals )
     local r = tbl:u8()
@@ -104,6 +129,15 @@ local SweepBuf  = {
     local ret = {}
     while nitems > 0 do
       ret[#ret+1] = tbl:next_u8()
+      nitems = nitems - 1
+    end
+    return ret;
+  end,
+
+  next_u8_enum_arr = function(tbl,nitems, enumvals)
+    local ret = {}
+    while nitems > 0 do
+      ret[#ret+1] = tbl:next_u8_enum( enumvals)
       nitems = nitems - 1
     end
     return ret;
@@ -337,7 +371,8 @@ local SweepBuf  = {
       io.write(bytes:gsub('[^%g]', '.'), '\n')
       offset = offset + bytes_per_line
     end
-  end
+  end,
+
 
 }
 

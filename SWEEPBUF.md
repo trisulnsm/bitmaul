@@ -63,6 +63,8 @@ You would most likely be working with the following `next_` functions. These ret
 * `next_u16` - unsigned 16 bit number
 * `next_u24` - unsigned 24
 * `next_u32` - unsigned 32 
+* `next_uN(numbytes)` - unsigned N byte number. `next_uN(2) is same as next_u16()` 
+
 
 Then the Little Endian versions. Rarely network protocols use this. 
 
@@ -73,6 +75,8 @@ Then the Little Endian versions. Rarely network protocols use this.
 
 Then a helper enum function
 * `next_u8_enum( lookup_table) ` - unsigned byte , returns an array [value, enumerated string] if there is a match on the supplied lookup table
+* `next_uN_enum( numbytes, lookup_table) ` - unsigned N byte , returns an array [value, enumerated string]
+
 
 These functions return the value but do not advance the internal pointer.
 

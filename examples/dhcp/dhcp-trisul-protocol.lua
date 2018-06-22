@@ -22,20 +22,18 @@ TrisulPlugin = {
 
   -- new protocol for DHCP 
   control = {
-    guid  = "{E1BD4415-DED3-4D81-974A-3E23C8CE6F5B}",  -- new protocol GUID, use tp testbench guid to create
-    name  = "DHCP",  -- new protocol name 
-	host_protocol_guid = '{14D7AB53-CC51-47e9-8814-9C06AAE60189}',
-	host_protocol_ports = { 67,68 } 
+    guid  = "{E1BD4415-DED3-4D81-974A-3E23C8CE6F5B}",               -- new protocol GUID, use tp testbench guid to create
+    name  = "DHCP",                                                 -- new protocol name 
+    host_protocol_guid = '{14D7AB53-CC51-47e9-8814-9C06AAE60189}',  -- UDP
+    host_protocol_ports = { 67,68 }                                 -- Ports 67,68 
   },
 
 
-  -- WHEN CALLED: when lower layer is constructed and 
-  -- return  ( nEaten, nextProtID) 
+  -- parselayer 
+  -- DHCP eats all bytes, (there is no NEXT protocol)
+  -- 
   parselayer = function(layer)
-  	return layer:layer_bytes(),nil 
-    -- return nEaten, nextProtocolGUID
-    -- if you have no idea about next protocol, return nothing
-
+    return layer:layer_bytes(),nil 
   end,
 
 
