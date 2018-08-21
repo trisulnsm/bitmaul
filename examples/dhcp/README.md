@@ -1,12 +1,12 @@
 DHCP Logger 
 ============
 
-This example is a fully functional DHCP logger written in plain LUA using BITMAUL for the [TrisulNSM platform](https://trisul.org/docs/lua)
+This example is a fully functional DHCP logger written in plain LUA using BITMAUL.  In this example, the DHCP Dissector is plugged into the [TrisulNSM platform](https://trisul.org/docs/lua) , but it can be used on other network analytics platforms too. 
 
 
 ### What is logged? meta data of interest to network and security monitoring
 
-We want to log DHCP activity in plain English log messages. What we are looking for is Client IP address lease activity. This can enrich our other NSM data to tie down L2 to L3 mapping.  The following image shows the output of this example 
+We want to save DHCP activity in plain English log messages.  In particular we want to log Client IP address lease activity. This can enrich visibility tie down L2 to L3 mapping.  The following image shows a sample output.
 
 ![DHCP Log Image1](dhcp1.png)
 
@@ -23,14 +23,13 @@ Restart Trisul Probe
 
 ````
 
-This creates a new Resource Group  ( also known as Log Type in other products ). Go to Resources -> All Resources -> DHCP to start searching.
 
 
 ## Explanation
 
-The files are divided into two categories.
+The files in this directory are divided into two categories.
 
-Code that dissects the DHCP 
+Code that dissects the DHCP packet
 
  - `dhcp-dissect.lua` : The main BITMAUL action is here 
  - `dhcp-enums.lua` : DHCP message types and other enums from IANA to decode 
@@ -53,10 +52,9 @@ The main technique is
  - outside code generate the log messages from the table 
 
 
-One line code like
+There are also some shortcuts like `next_uN()` demonstrated in this example 
 
 ```
-
 	return string.format("%d seconds", swb:next_uN(swb:next_u8()))
 
 	safely handles protocol specifications like
@@ -78,7 +76,7 @@ Imagine you have to answer these questions
  - What is the Host name for MAC address 'X' ? 
 
 
-The following code adds an EDGE from MAC -> IP and then IP -> MAC. Remember Trisul Edges are Uni-Directional. 
+The following code adds an EDGE from MAC -> IP and then IP -> MAC. Remember Trisul Edges are Uni-Directional.  See [engine:add_edge(..)](https://www.trisul.org/docs/lua/obj_engine.html#function_add_edge)
 
 
 ````
@@ -102,3 +100,9 @@ end
 To produce this output
 
 ![DHCP Edge Image2](dhcp2.png)
+
+
+## Viewing the data in Trisul
+
+ - To view Logs :  Go to Resources -> All Resources -> DHCP to start searching.
+ - For graph analytics : Click on a MAC address vertex to expose its DHCP neigbours. 
