@@ -73,6 +73,9 @@ Then the Little Endian versions. Rarely network protocols use this.
 * `next_u24_le`
 * `next_u32_le`
 
+> 64-bits: There is no `next_u64()` because currently LuaJIT only supports 56 bit numbers. 
+> Use two calls to `next_u32()` to load the HI and LO 32-bit words.
+
 Then a helper enum function
 * `next_u8_enum( lookup_table) ` - unsigned byte , returns an array [value, enumerated string] if there is a match on the supplied lookup table
 * `next_uN_enum( numbytes, lookup_table) ` - unsigned N byte , returns an array [value, enumerated string]
@@ -202,6 +205,10 @@ Bitfields can be a bit hairy, but SweepBuf makes it trivial to dissect it.
 
 For example this is the TCP Header field `flags_frame_offset`
 
+
+
+![TCP Flags Screenshot](tcpflags.png)
+
 ````c
 
   uint16_t  flags_frame_offset {
@@ -219,7 +226,8 @@ For example this is the TCP Header field `flags_frame_offset`
   }
 ````
 
-You can dissect this in just one line 
+You can dissect this in just one line with the `next_bitfield` function. 
+Just pass a LUA table of bitfield lengths from MOST to LEAST significant bit as seen on Wireshark. 
 
 ````lua
   local flags_fo = payload:next_bitfield_u16( {4,6,1,1,1,1,1,1})
