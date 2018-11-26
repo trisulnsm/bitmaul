@@ -193,7 +193,8 @@ These two methods should cover 99% of common network protocol idioms dealing wit
 
 * `next_str_to_pattern (patt (, pattern_is_plain) )` = extract string till you see the Regex pattern, include the pattern in the matched string. Use this to match delimiter patterns between PDUs.  The second optional parameter _is_plain_ is used to tell the framework whether the pattern is a plain string or a regular expression. To use a regex pattern, set the second parameter to `false` Example: `next_str_to_pattern("(%S+)%s+HTTP", false)`  If using a plain pattern, you can just omit this parameter. 
 * `next_str_to_pattern_exclude (patt (, pattern_is_plain) )` = extract string till you see the next pattern, dont include the pattern in the matched string. Use this for matching marker bytes that appear at the START of each PDU. The second optional parameter `is_plain` is true when pattern is plain string and false when the pattern is a regex. If using a plain pattern, you can just omit this parameter. 
-* `next_str_to_len(string_len)` = extract string of length
+* `next_str_to_len(string_len)` = extract string of given length
+* `next_hex_str_to_len(string_len)` = extract binary string of given length into a hex string 
 
 
 
@@ -204,8 +205,6 @@ These two methods should cover 99% of common network protocol idioms dealing wit
 Bitfields can be a bit hairy, but SweepBuf makes it trivial to dissect it.
 
 For example this is the TCP Header field `flags_frame_offset`
-
-
 
 ![TCP Flags Screenshot](tcpflags.png)
 
@@ -248,6 +247,17 @@ These two methods are available for bit fields. They parse the bitfield and adva
 
 * `next_bitfield_u8 ( {bitfield-widths})` = parse next 8 bit as a bitfield 
 * `next_bitfield_u16 ( {bitfield-widths})` = parse next 16 bit as a bitfield 
+* `next_bitfield_u8_named ( {bitfield-widths}, {bitfield-names})` = parse next 8 bit as a bitfield and return a hash of named bitfields
+
+````lua
+local flags_fo = payload:next_bitfield_u16_named( 
+                  {4,6,1,1,1,1,1,1},   -- widths
+                  {'header_len','reserved','urg','ack','psh','rst','syn','fin'}) -- names
+
+  -- now flags_fo.syn= 1 or 0 etc 
+  --
+````
+
 
 Both these methods 
 

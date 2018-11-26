@@ -187,6 +187,17 @@ local SweepBuf  = {
     end 
   end,
 
+  next_hex_str_to_len = function(tbl, slen)
+  	local ret = tbl:next_str_to_len(slen)
+	if ret then
+	    return (ret:gsub('.', function (c)
+		        return string.format('%02X', string.byte(c))
+		end))
+	else
+		return nil
+	end
+  end,
+
   next_u16_arr = function(tbl,nitems)
     local ret = {}
     while nitems > 0 do
@@ -306,6 +317,31 @@ local SweepBuf  = {
 	end
 	return ret
   end,
+
+
+  -- 8-bit fields with fieldnames
+  next_bitfield_u8_named  = function(tbl, bitmap, fieldnames )
+  	local values=tbl:next_bitfield_u8(bitmap)
+	local ret={}
+
+	for i = 1 , #values do 
+		ret[fieldnames[i]]=values[i]
+	end 
+
+	return ret
+  end, 
+
+
+  -- 16-bits with fieldnames 
+  next_bitfield_u16_named  = function(tbl, bitmap, fieldnames )
+  	local values=tbl:next_bitfield_u16(bitmap)
+	local ret={}
+	for i = 1 , #values do 
+		ret[fieldnames[i]]=values[i]
+	end 
+	return ret
+  end, 
+
 
   next_ipv4 = function(tbl)
   	return string.format("%d.%d.%d.%d", tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8())
