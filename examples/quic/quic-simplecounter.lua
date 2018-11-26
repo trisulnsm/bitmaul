@@ -36,8 +36,15 @@ TrisulPlugin = {
           -- dissect the QUIC protocol into a Lua table fields 
           local fields  = do_dissect( layer:rawbytes():tostring() )
 
-
 		  -- Tag with QUIC, ConnectionID, and SNI name 
+		  if fields.tag_sni then
+		  	print("SNI= "..fields.tag_sni)
+		  end
+
+		  if fields.tag_user_agent then
+		  	print("USERAGENT= "..fields.tag_user_agent)
+		  end
+
 
 
     end,
