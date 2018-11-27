@@ -98,6 +98,8 @@ local SweepBuf  = {
 		r=tbl:next_u24()
 	elseif nbytes==4 then
 		r=tbl:next_u32()
+	elseif nbytes==0 then
+		return nil
 	else
 		error("next_uN : only supports 1,2,3,4 byte numbers. Given="..nbytes)
 	end

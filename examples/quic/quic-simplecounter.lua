@@ -11,7 +11,6 @@ local dh=require'quic-dissect'
 
 TrisulPlugin = { 
 
-
   -- the ID block, you can skip the fields marked 'optional '
   -- 
   id =  {
@@ -33,23 +32,20 @@ TrisulPlugin = {
     -- 
     onpacket = function(engine,layer)
 
-          -- dissect the QUIC protocol into a Lua table fields 
-          local fields  = do_dissect( layer:rawbytes():tostring() )
+      -- dissect the QUIC protocol into a Lua table fields 
+      local fields  = do_dissect( layer:rawbytes():tostring() )
+      
+      if not fields then return end 
 
-		  -- Tag with QUIC, ConnectionID, and SNI name 
-		  if fields.tag_sni then
-		  	print("SNI= "..fields.tag_sni)
-		  end
+      -- Tag with QUIC, ConnectionID, and SNI name 
+      if fields.tag_sni then
+        print("SNI= "..fields.tag_sni)
+      end
 
-		  if fields.tag_user_agent then
-		  	print("USERAGENT= "..fields.tag_user_agent)
-		  end
-
-
-
+      if fields.tag_user_agent then
+        print("USERAGENT= "..fields.tag_user_agent)
+      end
     end,
-
-
   },
 }
 
