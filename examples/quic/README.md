@@ -13,6 +13,7 @@ We use the Trisul LUA Scripting API along with the SweepBuf protocol dissection 
 * [Trisul LUA Scripting](https://www.trisul.org/docs/lua/)
 * [BITMAUL Protocol Dissection Library](https://github.com/trisulnsm/bitmaul) 
 * [SweepBuf from BITMAUL helps you parse packets](https://github.com/trisulnsm/bitmaul/blob/master/SWEEPBUF.md)
+* [CRYPTO Certificate Chain format](https://docs.google.com/document/d/1g5nIXAIkN_Y-7XJW5K45IblHd_L2f5LTaDUDwvZ5L6g/edit#) 
 
 
 
