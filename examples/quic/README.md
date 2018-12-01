@@ -60,3 +60,17 @@ From the 1st packet, which is the so called "Inchoate CHLO" - we extract out the
 ````
 
 
+How to use in Trisul
+==========
+
+Just dump `*.lua` files from this directory and also `sweepbuf.lua` from the root directory of this repository into the local-lua directory  on the default context on probe0. Then restart the Trisul probe.
+
+1. To view QUIC based data, go to *Tools/Explore Flows* , then query by `tag=QUIC` 
+2. This picks up all UDP flows tagged as QUIC and prints out the flows with the tags
+3. This simple scripts tags each flow with the labels _QUIC, User-Agent, SNI, QUIC Connection ID_ 
+4. See screenshot below 
+
+![QUIC sample sshot](screenshot.png) 
+
+
+

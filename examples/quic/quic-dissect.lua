@@ -28,6 +28,9 @@ function do_dissect( buff)
     ret.cid_hi   = swb:next_u32()
     ret.cid_lo   = swb:next_u32()
     ret.cid_str  = string.format("%08X",ret.cid_hi)..string.format("%08X",ret.cid_lo) 
+  else 
+   -- no connection ID return
+   return nil 
   end
 
   -- checkif reassembly is needed 
@@ -45,8 +48,9 @@ function do_dissect( buff)
 
   ret.pkt_number = swb:next_uN(ret.pkt_number_len)
 
+
   -- post full CHLO we have encryption, nothing more..
-  if ret.pkt_number > 3  then return nil end;
+  if ret.pkt_number >= 3  then return nil end;
 
 
     -- special
@@ -67,6 +71,7 @@ function do_dissect( buff)
       ret.tag = swb:next_str_to_len(4)
       ret.tag_count  = swb:next_u16_le(2)
       _              = swb:next_u16(2)
+
 
       ret.tag_offsets = { } 
       for i = 1 , ret.tag_count do

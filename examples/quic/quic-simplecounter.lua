@@ -9,6 +9,10 @@
 -- 
 local dh=require'quic-dissect' 
 
+-- flowid to skip because of completed QUIC CRYPTO
+-- this means rest of flow is encrypted 
+skipflows = { } 
+
 TrisulPlugin = { 
 
 
@@ -33,28 +37,38 @@ TrisulPlugin = {
     -- 
     onpacket = function(engine,layer)
 
+		  local flowid =  layer:packet():flowid():id() 
+		  
+		  if skipflows[flowid] then 
+		  	return
+		  end 
+
           -- dissect the QUIC protocol into a Lua table fields 
           local fields  = do_dissect( layer:rawbytes():tostring() )
 		  
 		  if not fields then return end 
 
+		  engine:tag_flow( flowid, "QUIC")
+
 		  -- Tag with QUIC, ConnectionID, and SNI name 
 		  if fields.tag_sni then
 		  	-- print("SNI= "..fields.tag_sni)
-			engine:tag_flow( layer:packet():flowid():id(), fields.tag_sni)
+			engine:tag_flow( flowid, fields.tag_sni)
 		  end
 
 		  if fields.tag_user_agent then
 		  	-- print("USERAGENT= "..fields.tag_user_agent)
-			engine:tag_flow( layer:packet():flowid():id(), fields.tag_user_agent)
+			engine:tag_flow( flowid, fields.tag_user_agent)
 		  end
 
 		  if fields.cid_str then
-			engine:tag_flow( layer:packet():flowid():id(), fields.cid_str)
+			engine:tag_flow( flowid, fields.cid_str)
 		  end 
 
 		  -- print EC certificate chain ?
 		  if fields.tag_cert_chain then 
+			skipflows[flowid] = flowid 
+
 		  	local f = io.open("/tmp/k.der","w")
 			f:write(fields.tag_cert_chain)
 			f:close()
