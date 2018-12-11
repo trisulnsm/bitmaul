@@ -389,6 +389,7 @@ local fields=sw:split_fields_fast(": ","\r\n")
 * `inc(nbytes)`  move the internal pointer by n bytes. 
 * `skip(nbytes)`  skip n bytes. 
 * `bytes_left` how many bytes left to process. End - current internal pointer position
+* `buffer_left` return the buffer left to be parsed 
 
 
 ------------------

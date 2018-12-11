@@ -256,6 +256,10 @@ local SweepBuf  = {
     return tbl.seekpos < tbl:top_fence() 
   end,
 
+  buffer_left = function(tbl)
+    return string.sub(tbl.buff ,tbl.seekpos+1, #tbl.buff)
+  end, 
+
   bytes_left = function(tbl)
     return #tbl.buff - tbl.seekpos + 1
   end,
