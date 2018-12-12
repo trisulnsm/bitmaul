@@ -1,3 +1,8 @@
+-- cert_decompressor : 
+-- extract a DER certificate from a QUIC crypto compressed 
+-- decompress_chain( compressed-str )
+--
+
 local ffi=require('ffi')
 local Z = ffi.load('/lib/x86_64-linux-gnu/libz.so.1')
 local SWB=require'sweepbuf'
@@ -211,7 +216,36 @@ function decompress_chain( crtstr  )
 end 
 
 
+-- first decompress into DER , then run thru openssl x509 
+-- 
+function decompress_chain_x509( crtstr )
+
+local crtf = io.open("/tmp/k.crt","wb")
+crtf:write(crtstr)
+crtf:close()
+
+
+    local dercerts = decompress_chain(crtstr)
+    local x509certs = {} 
+    for i,der in ipairs(dercerts)  do
+        local tmpn = os.tmpname()
+        local tmpf = io.open(tmpn,"wb")
+        tmpf:write(der)
+        tmpf:close()
+
+        local pipeout = io.popen("openssl x509  -in "..tmpn.." -inform der -text ")
+        local xt  = pipeout:read("*a")
+        pipeout:close()
+
+        table.insert(x509certs,xt)
+    end
+    return x509certs
+
+end
+
+
 -- Test
+--[[
 local crtf = io.open("/tmp/k.crt","r")
 local crtstr =    crtf:read("*all")
 crtf:close()
@@ -225,4 +259,4 @@ for i,crt in ipairs(certarr) do
 	outf:write(crt)
 	outf:close()
 end
-
+--]]

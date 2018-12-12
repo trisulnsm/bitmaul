@@ -37,8 +37,13 @@ function do_dissect( buff)
   local pending_buff = pending[ret.cid_str]
   if pending_buff then 
     pending[ret.cid_str]=nil 
-  local newbuff = pending_buff .. string.sub(buff,10)
-  return do_dissect(newbuff)
+	local machash = swb:next_str_to_len(12)
+	local frtype    = swb:next_u8()
+	local streamid  = swb:next_u8()
+	local offset    = swb:next_u16_le()  -- can do better, we only saw 16 bit 
+	local size      = swb:next_u16_le()
+    local newbuff   = pending_buff .. swb:buffer_left() 
+    return do_dissect(newbuff)
   end 
 
 
