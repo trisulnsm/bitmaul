@@ -29,8 +29,11 @@ local BGPDissector  = {
 
     sw:skip(16); 
     fields.length = sw:next_u16();
+	sw:clip(fields.length);
+
     fields.msgtype = sw:next_u8(); 
     fields.msgname = BGP_Message_Types[fields.msgtype]
+
 
 
     local handlerfn = BGP_Handlers[fields.msgtype]

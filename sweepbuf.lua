@@ -106,6 +106,24 @@ local SweepBuf  = {
     return r
   end,
 
+  next_uN_le = function(tbl, nbytes)
+    local r 
+	if nbytes==1 then 
+		r=tbl:next_u8_le()
+	elseif nbytes==2 then
+		r=tbl:next_u16_le()
+	elseif nbytes==3 then
+		r=tbl:next_u24_le()
+	elseif nbytes==4 then
+		r=tbl:next_u32_le()
+	elseif nbytes==0 then
+		return nil
+	else
+		error("next_uN_le : only supports 1,2,3,4 byte numbers. Given="..nbytes)
+	end
+    return r
+  end,
+
   next_uN_enum = function(tbl, nbytes, enumvals)
     local r = tbl:next_uN(nbytes)
 	if enumvals[r] then 
@@ -262,6 +280,10 @@ local SweepBuf  = {
 
   bytes_left = function(tbl)
     return #tbl.buff - tbl.seekpos + 1
+  end,
+
+  clip=function(tbl, newlength)
+    tbl.buff= string.sub(tbl.buff ,1,newlength)
   end,
 
   abs_seek  = function(tbl) 

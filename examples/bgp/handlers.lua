@@ -2,6 +2,9 @@
 -- shows how you can use functions to modularize parsing
 -- dont worry about perf. tracing LuaJIT will optmize commonly used function paths 
 
+local dbg=require'debugger'
+local IP6=require'ip6'
+
 BGP_Message_Types =
 {
   [1]="OPEN",
@@ -47,9 +50,76 @@ BGP_Path_Attributes =
     -- NEXT_HOP 
     return { ["NEXT_HOP"] =  swbuf:next_ipv4()  } 
 
-  end
+  end,
+
+  [4] = function(swbuf,len)
+    -- MULTI_EXIT_DISC 
+    return { ["MULTI_EXIT_DISC"] =  swbuf:next_u32()  } 
+
+  end,
+
+  [8] = function(swbuf,len)
+
+	local tbl= {}
+	local i
+	for i = 1 , len/4  do 
+		local lv = swbuf:next_u16()
+		local as = swbuf:next_u16()
+		table.insert( tbl, lv..":"..as)
+	end 
+
+    return { ["COMMUNITIES"] =  table.concat(tbl,",") }
+
+  end,
+
+  [14] = function(swbuf,len)
+  	-- MP NLRI 
+
+    local flds = {}
+    flds.afi = swbuf:next_u16()
+    flds.safi = swbuf:next_u8()
+	local nlen=swbuf:next_u8()
+	if flds.afi==2 and flds.safi==1 and nlen==16 then
+		flds.nexthop = IP6.bin_to_ip6( swbuf:next_str_to_len(nlen))
+	else
+		swbuf:skip(nlen)
+	end
+	swbuf:skip(1) -- reserved
+
+    local prefixlength = swbuf:next_u8()
+	if flds.afi==2 and flds.safi==1 then 
+		local farr = swbuf:next_str_to_len( math.ceil( prefixlength/8))
+		local barr = farr..string.rep("\x00",16-math.ceil(prefixlength/8))
+		flds.nlri = IP6.bin_to_ip6( barr).."/"..prefixlength
+
+	end
+
+    -- MP-NLRI 
+    return { ["MP-NLRI"] =  flds   } 
+
+  end,
 
 } 
+
+-- v4/v6 IP prefix a common pattern
+function parse_prefix(swbuf)
+  local prefixlength = swbuf:next_u8()
+  if  swbuf:bytes_left() < math.ceil(prefixlength/8)  then
+  	return nil
+  elseif prefixlength <= 32 then 
+	  local ip4num=swbuf:next_uN_le( math.ceil(prefixlength/8)) or 0 
+	  return string.format("%d.%d.%d.%d/%d", 
+			bit.band(bit.rshift(ip4num,0),0xff),
+			bit.band(bit.rshift(ip4num,8),0xff), 
+			bit.band(bit.rshift(ip4num,16),0xff), 
+			bit.rshift(ip4num,24), 
+			prefixlength)
+  elseif prefixlength <= 128 then
+	 local farr = swbuf:next_str_to_len( math.ceil( prefixlength/8))
+	 local barr = farr..string.rep("\x00",16-math.ceil(prefixlength/8))
+	 return IP6.bin_to_ip6( barr).."/"..prefixlength 
+  end 
+end
 
 BGP_Handlers =
 {
@@ -95,15 +165,11 @@ BGP_Handlers =
     flds.withdrawn_routes   = {}
     swbuf:push_fence(flds.withdrawn_routes_length)
     while swbuf:has_more() do 
-
-      local prefix_bits = swbuf:next_u8()
-      local route = swbuf:next_str_to_len(math.ceil(prefix_bits/8))
-
-      flds.withdrawn_routes[#flds.withdrawn_routes+1] =  {  prefix_bits, route  } 
-
+		table.insert( flds.withdrawn_routes, parse_prefix(swbuf))
     end 
 
     -- path attributes
+	if swbuf:bytes_left() < 2 then return flds end 
     flds.path_attr_length   = swbuf:next_u16()
     flds.path_attr  = {}
     swbuf:push_fence(flds.path_attr_length)
@@ -132,16 +198,7 @@ BGP_Handlers =
     -- NLRI 
     flds.nlri = {} 
     while swbuf:bytes_left() > 0  do
-      local prefixlength = swbuf:next_u8()
-      if prefixlength>24 then
-        flds.nlri[#flds.nlri+1] = swbuf:next_ipv4()
-      elseif prefixlength>16 then
-        flds.nlri[#flds.nlri+1] = string.format("%d.%d.%d", swbuf:next_u8(), swbuf:next_u8(),swbuf:next_u8())
-      elseif prefixlength>8 then
-        flds.nlri[#flds.nlri+1] = string.format("%d.%d", swbuf:next_u8(), swbuf:next_u8())
-      elseif prefixlength>0 then
-        flds.nlri[#flds.nlri+1] = string.format("%d", swbuf:next_u8())
-      end
+		table.insert(  flds.nlri, parse_prefix(swbuf))
     end
 
     return flds

@@ -17,10 +17,11 @@ local pdu1 =  PDURec.new("bgp", BGPDissector.new() )
 
 
 
-
 -- pump the PDU record using push_xx() 
 -- it will call dissector:on_record() at the correct time 
 local f = io.open(arg[1])
+
+-- f:read( 32)
 local payl = f:read( math.random(50) )
 local cpos = 1 
 while payl do 
