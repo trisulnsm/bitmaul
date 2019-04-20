@@ -58,8 +58,18 @@ BGP_Path_Attributes =
 
   end,
 
-  [8] = function(swbuf,len)
+  [7] = function(swbuf,len)
+  	-- AGGREGATOR
+    return { ["AGGREGATOR"] =  {
+		asn = swbuf:next_u32(),
+		ip = swbuf:next_ipv4()
+		} 
+	}
+  end,
 
+
+  [8] = function(swbuf,len)
+  	-- COMMUNITIES
 	local tbl= {}
 	local i
 	for i = 1 , len/4  do 
@@ -74,7 +84,6 @@ BGP_Path_Attributes =
 
   [14] = function(swbuf,len)
   	-- MP NLRI 
-
     local flds = {}
     flds.afi = swbuf:next_u16()
     flds.safi = swbuf:next_u8()
@@ -96,6 +105,39 @@ BGP_Path_Attributes =
 
     -- MP-NLRI 
     return { ["MP-NLRI"] =  flds   } 
+
+  end,
+
+  [16] = function(swbuf,len)
+  	-- EXTENDED COMMUNITIES 
+
+	local ec = {} 
+	for i = 1 , len/8  do 
+		local ty = swbuf:next_u8()
+		local st = swbuf:next_u8()
+
+		if ty==0x00 or ty==0x40 then
+			table.insert( ec, swbuf:next_u16()..":"..swbuf:next_u32()) 
+		else 
+			table.insert( ec, swbuf:next_u16()..":"..swbuf:next_u32()) 
+		end 
+	end 
+
+    -- MP-NLRI 
+    return { ["EXTENDED-COMMUNITES"] =  ec   } 
+
+  end,
+
+  [32] = function(swbuf,len)
+  	-- LARGE COMMUNITY 
+
+	local ec = {} 
+	for i = 1 , len/12  do 
+		table.insert( ec, swbuf:next_u32()..":"..swbuf:next_u32()..":"..swbuf:next_u32()) 
+	end 
+
+    -- MP-NLRI 
+    return { ["LARGE-COMMUNITES"] =  ec   } 
 
   end,
 
