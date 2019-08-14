@@ -4,7 +4,8 @@
 --
 
 local ffi=require('ffi')
-local Z = ffi.load('/lib/x86_64-linux-gnu/libz.so.1')
+-- local Z = ffi.load('/lib/x86_64-linux-gnu/libz.so.1')
+local Z = ffi.load('z')
 local SWB=require'sweepbuf'
 
 ffi.cdef[[

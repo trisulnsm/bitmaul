@@ -9,6 +9,8 @@
 -- 
 local dh=require'quic-dissect' 
 require 'cert_decompressor'
+require 'md5ffi'
+local TblInspect=require'inspect' 
 
 -- flowid to skip because of completed QUIC CRYPTO
 skipflows = { } 
@@ -33,9 +35,10 @@ TrisulPlugin = {
       if skipflows[flowid] then return end 
 
       -- dissect the QUIC protocol into a Lua table fields 
-      local fields  = do_dissect( layer:rawbytes():tostring() )
+      local fields  = do_dissect( flowid, layer:rawbytes():tostring() )
       
       if not fields then return end 
+
 
       -- Tag with string QUIC 
       engine:tag_flow( flowid, "QUIC")
@@ -52,6 +55,25 @@ TrisulPlugin = {
       if fields.cid_str then
         engine:tag_flow( flowid, fields.cid_str)
       end 
+
+	  -- CA hash 
+	  if fields.tag_offsets then 
+
+		  print( TblInspect(fields))
+
+		  local tagnames = {}
+		  for _,v in ipairs( fields.tag_offsets) do
+			table.insert(tagnames, v[1])
+		  end 
+		  local cyu= fields.version:sub(-2)..','..table.concat(tagnames,"-")
+		  cyu=cyu:gsub("[^%g]", "")
+		  local cyu_hash = md5sum(cyu)
+		  print(" -- CYU HASH --") 
+		  print(cyu)
+		  print(cyu_hash)
+
+		  engine:tag_flow( flowid, "[cah]"..cyu_hash)
+	  end 
 
       -- QUIC certificate chain into Trisul Resource
       if fields.tag_cert_chain then 
