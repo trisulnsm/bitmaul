@@ -1,8 +1,11 @@
 # QUIC Protocol for Trisul
 
-
 A Trisul script that performs a full decode the the *QUIC Crypto handshake* which 
 always happens when you connect to Google services like YouTube  over QUIC. 
+
+# UPDATES
+
+AUG-14-2019     UPDATED to support the latest GQUIC version Q046. 
 
 ## Links
 
@@ -15,8 +18,6 @@ We use the Trisul LUA Scripting API along with the SweepBuf protocol dissection 
 * [SweepBuf from BITMAUL helps you parse packets](https://github.com/trisulnsm/bitmaul/blob/master/SWEEPBUF.md)
 * [CRYPTO Certificate Chain format](https://docs.google.com/document/d/1g5nIXAIkN_Y-7XJW5K45IblHd_L2f5LTaDUDwvZ5L6g/edit#) 
 
-
-
 ## What `quic-dissect.lua`  does 
 
    1.  attaches a new Protocol (Google-QUIC) to UDP port 443
@@ -24,8 +25,6 @@ We use the Trisul LUA Scripting API along with the SweepBuf protocol dissection 
    3.  tags UDP flow with QUIC connection IDs
    4.  tags the UDP flow with SNI Tag extracted from QUIC Client Hello 
    5.  basic reassembly to pick up fragmented CRYPTO handshake 
-
-
 
 ## Example Inchoate Client Hello CHLO 
 
