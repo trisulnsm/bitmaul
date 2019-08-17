@@ -57,7 +57,7 @@ TrisulPlugin = {
       end 
 
 	  -- CA hash 
-	  if fields.tag_offsets then 
+	  if fields.tag_offsets and fields.version  then 
 
 		  print( TblInspect(fields))
 
