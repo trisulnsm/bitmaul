@@ -56,24 +56,20 @@ TrisulPlugin = {
         engine:tag_flow( flowid, fields.cid_str)
       end 
 
-	  -- CA hash 
-	  if fields.tag_offsets and fields.version  then 
-
-		  print( TblInspect(fields))
-
-		  local tagnames = {}
-		  for _,v in ipairs( fields.tag_offsets) do
-			table.insert(tagnames, v[1])
-		  end 
-		  local cyu= fields.version:sub(-2)..','..table.concat(tagnames,"-")
-		  cyu=cyu:gsub("[^%g]", "")
-		  local cyu_hash = md5sum(cyu)
-		  print(" -- CYU HASH --") 
-		  print(cyu)
-		  print(cyu_hash)
-
-		  engine:tag_flow( flowid, "[cah]"..cyu_hash)
-	  end 
+      -- CA hash 
+      if fields.tag_offsets and fields.version  then 
+        local tagnames = {}
+        for _,v in ipairs( fields.tag_offsets) do
+          table.insert(tagnames, v[1])
+        end 
+        local cyu= fields.version:sub(-2)..','..table.concat(tagnames,"-")
+        cyu=cyu:gsub("[^%g]", "")
+        local cyu_hash = md5sum(cyu)
+        print(" -- CYU HASH --") 
+        print(cyu)
+        print(cyu_hash)
+        engine:tag_flow( flowid, "[cah]"..cyu_hash)
+      end 
 
       -- QUIC certificate chain into Trisul Resource
       if fields.tag_cert_chain then 
@@ -85,12 +81,8 @@ TrisulPlugin = {
                             "QUIC chain with "..#certs.."certs",
                             table.concat( certs,"\n"))
         end
-
       end 
-
     end,
-
-
   },
 }
 

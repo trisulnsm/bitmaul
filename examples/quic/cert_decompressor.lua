@@ -171,48 +171,48 @@ local kCommonCertSubstrings = {
 -- 
 function decompress_chain( crtstr  ) 
 
-	local Z_OK            =0;
-	local Z_FINISH        =4;
-	local Z_NEED_DICT     =2;
+    local Z_OK            =0;
+    local Z_FINISH        =4;
+    local Z_NEED_DICT     =2;
 
-	local outbuf = ffi.new("char[16000]") 
-	local zs = ffi.new("z_stream[1]");
-	zs[0].next_out = outbuf
-	zs[0].avail_out = 16000
-	zs[0].next_in= crtstr
-	zs[0].avail_in =  #crtstr
+    local outbuf = ffi.new("char[16000]") 
+    local zs = ffi.new("z_stream[1]");
+    zs[0].next_out = outbuf
+    zs[0].avail_out = 16000
+    zs[0].next_in= crtstr
+    zs[0].avail_in =  #crtstr
 
-	local ret=Z.inflateInit_(zs,"1.2.8",ffi.sizeof(zs[0]))
-	print("inflate ret "..ret)
+    local ret=Z.inflateInit_(zs,"1.2.8",ffi.sizeof(zs[0]))
+    print("inflate ret "..ret)
 
-	-- dictionary maker 
-	local dict = ffi.new("unsigned char[?]",#kCommonCertSubstrings) 
-	for i,val in ipairs(kCommonCertSubstrings) do
-		dict[i-1]=val
-	end
+    -- dictionary maker 
+    local dict = ffi.new("unsigned char[?]",#kCommonCertSubstrings) 
+    for i,val in ipairs(kCommonCertSubstrings) do
+        dict[i-1]=val
+    end
 
-	local rv = Z.inflate(zs, Z_FINISH);
-	if rv==Z_NEED_DICT then
-		print("compressor needs dict , loading ")
-		local ret= Z.inflateSetDictionary(zs, dict, #kCommonCertSubstrings)
-		assert(ret==Z_OK)
+    local rv = Z.inflate(zs, Z_FINISH);
+    if rv==Z_NEED_DICT then
+        print("compressor needs dict , loading ")
+        local ret= Z.inflateSetDictionary(zs, dict, #kCommonCertSubstrings)
+        assert(ret==Z_OK)
 
-		print("trying deflate with dict")
-		local rv = Z.inflate(zs, Z_FINISH);
-		print("rv="..rv.."  inflatde="..16000-zs[0].avail_out)
-	end 
+        print("trying deflate with dict")
+        local rv = Z.inflate(zs, Z_FINISH);
+        print("rv="..rv.."  inflatde="..16000-zs[0].avail_out)
+    end 
 
-	-- write out DER cert
-	local uncombuf  = ffi.string(outbuf,16000-zs[0].avail_out)
-	local swp = SWB.new(uncombuf)
+    -- write out DER cert
+    local uncombuf  = ffi.string(outbuf,16000-zs[0].avail_out)
+    local swp = SWB.new(uncombuf)
 
-	local certsarr = {} 
-	while swp:has_more() do 
-		local len = swp:next_u32_le()
-		table.insert(certsarr,swp:next_str_to_len(len))
-	end
+    local certsarr = {} 
+    while swp:has_more() do 
+        local len = swp:next_u32_le()
+        table.insert(certsarr,swp:next_str_to_len(len))
+    end
 
-	return certsarr
+    return certsarr
 
 end 
 
@@ -221,9 +221,9 @@ end
 -- 
 function decompress_chain_x509( crtstr )
 
-local crtf = io.open("/tmp/k.crt","wb")
-crtf:write(crtstr)
-crtf:close()
+    local crtf = io.open("/tmp/k.crt","wb")
+    crtf:write(crtstr)
+    crtf:close()
 
 
     local dercerts = decompress_chain(crtstr)
@@ -256,8 +256,8 @@ local certarr = decompress_chain(crtstr)
 
 -- Output certs
 for i,crt in ipairs(certarr) do
-	local outf = io.open("/tmp/luacert"..i..".der","wb")
-	outf:write(crt)
-	outf:close()
+    local outf = io.open("/tmp/luacert"..i..".der","wb")
+    outf:write(crt)
+    outf:close()
 end
 --]]

@@ -275,7 +275,7 @@ local SweepBuf  = {
   end,
 
   buffer_left = function(tbl)
-    return string.sub(tbl.buff ,tbl.seekpos+1, #tbl.buff)
+    return string.sub(tbl.buff ,tbl.seekpos, #tbl.buff)
   end, 
 
   bytes_left = function(tbl)
@@ -422,8 +422,12 @@ local SweepBuf  = {
   end,
 
 
-  hexdump = function(tbl )
-    local offset=1
+  hexdump_left  = function(tbl)
+  	tbl:hexdump( tbl.seekpos) 
+  end,
+
+  hexdump = function(tbl, offset_in    )
+    local offset=offset_in or 1 
     local bytes_per_line=16
     while offset < #tbl.buff  do
       io.write(string.format("%08X ", offset-1))

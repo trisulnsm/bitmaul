@@ -5,7 +5,10 @@ always happens when you connect to Google services like YouTube  over QUIC.
 
 # UPDATES
 
-AUG-14-2019     UPDATED to support the latest GQUIC version Q046. 
+````
+Aug-20-2019     Updated to support the latest GQUIC version Q046
+                also added a [Fingerprint](https://engineering.salesforce.com/gquic-protocol-analysis-and-fingerprinting-in-zeek-a4178855d75f) 
+````
 
 ## Links
 
