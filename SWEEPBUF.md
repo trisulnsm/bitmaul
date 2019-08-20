@@ -377,12 +377,12 @@ Use the fast version if you trust the input to be correct without extra spaces. 
 local fields=sw:split_fields_fast(": ","\r\n")
 ````
 
-
 ------------------
 
 ## Utility methods
 
 * `hexdump()` prints a hexdump of the byte buffer in a canonical format.
+* `hexdump_left()` prints a hexdump of the bytes from the current position till the end, what is left.
 * `split(str,delim)` Utility method to split a string
 * `to_string()` prints details about the SweepBuf object itself, like size of string, position of the pointers, etc.
 * `reset()` reset the seek pointer and remove all fences 
@@ -391,9 +391,7 @@ local fields=sw:split_fields_fast(": ","\r\n")
 * `bytes_left` how many bytes left to process. End - current internal pointer position
 * `buffer_left` return the buffer left to be parsed 
 
-
 ------------------
-
 
 ## Examples
 
