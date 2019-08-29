@@ -1,37 +1,34 @@
 # QUIC Protocol for Trisul
 
-A Trisul script that performs a full decode the the *QUIC Crypto handshake* which 
-always happens when you connect to Google services like YouTube  over QUIC. 
+This Bitmaul example script performs a decode of the *GQUIC Crypto handshake* 
+Google streaming services are increasingly moving to the GQUIC protocol.
 
-# UPDATES
+## What `quic-dissect.lua`  does 
 
-````
-Aug-20-2019     Updated to support the latest GQUIC version Q046
-                also added a [Fingerprint](https://engineering.salesforce.com/gquic-protocol-analysis-and-fingerprinting-in-zeek-a4178855d75f) 
-````
+   1.  attaches a new Protocol (Google-QUIC) to UDP port 443
+   2.  performs a decode of the crypto handshake CHLO and REJ messages into a LUA table
+   3.  tags UDP flow with QUIC connection IDs and QUIC tag 
+   4.  tags UDP flow with SNI from CHLO 
+   5.  basic reassembly to pick up fragmented CRYPTO handshake 
+   6.  Extracts the X.509 certificate after decompression from the REJ message 
+
+## UPDATES
+* Aug-25-2019     Updated to support the latest GQUIC version Q046, support for older Q043 removed 
+                  also added a [Fingerprint](https://engineering.salesforce.com/gquic-protocol-analysis-and-fingerprinting-in-zeek-a4178855d75f) 
 
 ## Links
 
-We use the Trisul LUA Scripting API along with the SweepBuf protocol dissection library from BITMAUL.
-
-* The version supported is Google **QUIC Version Q043**  The QUIC RFC is quite a bit different 
+* The version supported is **Google QUIC Version Q046**  , earlier versions are not supported 
 * Link to the [Google GUID CRYPTO Protocol](https://github.com/romain-jacotin/quic/blob/master/doc/QUIC_crypto_protocol.md) we are working with here. 
 * [Trisul LUA Scripting](https://www.trisul.org/docs/lua/)
 * [BITMAUL Protocol Dissection Library](https://github.com/trisulnsm/bitmaul) 
 * [SweepBuf from BITMAUL helps you parse packets](https://github.com/trisulnsm/bitmaul/blob/master/SWEEPBUF.md)
 * [CRYPTO Certificate Chain format](https://docs.google.com/document/d/1g5nIXAIkN_Y-7XJW5K45IblHd_L2f5LTaDUDwvZ5L6g/edit#) 
 
-## What `quic-dissect.lua`  does 
-
-   1.  attaches a new Protocol (Google-QUIC) to UDP port 443
-   2.  performs a full decode of the CRYPTO handshake messages into a LUA table
-   3.  tags UDP flow with QUIC connection IDs
-   4.  tags the UDP flow with SNI Tag extracted from QUIC Client Hello 
-   5.  basic reassembly to pick up fragmented CRYPTO handshake 
-
 ## Example Inchoate Client Hello CHLO 
 
-From the 1st packet, which is the so called "Inchoate CHLO" - we extract out the  ConnectionID, SNI, Client User Agent  ID (CUID).
+From the 1st packet, which is the so called "Inchoate CHLO" - we extract out the  ConnectionID, SNI, Client User Agent  ID (CUID). 
+The information extracted into a LUA table by the quic-dissect.lua which can be easily processed by the NSM packet handler script.
 
 ````lua
 {
@@ -61,13 +58,26 @@ From the 1st packet, which is the so called "Inchoate CHLO" - we extract out the
 
 ````
 
+## How to use in Trisul
 
-How to use in Trisul
-==========
+Just dump `*.lua` files from this directory and also `sweepbuf.lua` from the root directory of this repo into the local-lua directory on the probe. 
+Then restart the Trisul probe.
 
-Just dump `*.lua` files from this directory and also `sweepbuf.lua` from the root directory of this repository into the local-lua directory  on the default context on probe0. Then restart the Trisul probe.
+### 1. live capture  mode 
+````
+cp allthefiles.lua  /usr/local/var/lib/trisul-probe/domain0/probe0/context0/config/local-lua
+trisulctl_probe restart context default
+````
 
-1. To view QUIC based data, go to *Tools/Explore Flows* , then query by `tag=QUIC` 
+### 2. read pcap file  mode 
+````
+cp allthefiles.lua  /usr/local/var/lib/trisul-probe/domain0/probe0/context0/config/local-lua
+trisulctl_probe importpcap /home/mike/quic-packets.pcap 
+````
+
+### Query flows by QUIC 
+
+1. Go to *Tools/Explore Flows* , then query by `tag=QUIC` 
 2. This picks up all UDP flows tagged as QUIC and prints out the flows with the tags
 3. This simple scripts tags each flow with the labels _QUIC, User-Agent, SNI, QUIC Connection ID_ 
 4. See screenshot below 
@@ -75,4 +85,15 @@ Just dump `*.lua` files from this directory and also `sweepbuf.lua` from the roo
 ![QUIC sample sshot](screenshot.png) 
 
 
+### View QUIC certificates 
+
+This script also extracts X.509 certificates sent by the server in the REJ message. Much like the "Server Certificate" in TLS.
+
+
+1. Go to *Resources/View All*  
+2. Click on the *SSL Certs*, then press *Search* to list all certificates seen
+3. You can see the extracted certificates as shown below
+
+
+![QUIC certs](certs.png) 
 
