@@ -17,7 +17,7 @@ TrisulPlugin = {
   -- 
   protocol_handler  = {
 
-  -- new protocol for DHCP 
+  -- new protocol for BGP 
   control = {
     guid  = "{B7524296-F14D-4BCA-D302-5760485A133B}",               -- new protocol GUID, use tp testbench guid to create
     name  = "BGP",                                                  -- new protocol name 
