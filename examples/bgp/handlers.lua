@@ -2,7 +2,7 @@
 -- shows how you can use functions to modularize parsing
 -- dont worry about perf. tracing LuaJIT will optmize commonly used function paths 
 
-local dbg=require'debugger'
+-- local dbg=require'debugger'
 local IP6=require'ip6'
 
 BGP_Message_Types =
