@@ -3,7 +3,6 @@
 --
 --  TODO: unoptimized  , see LuaJIT traces in prof directory
 -- 
-
 local SweepBuf  = {
 
   u8le = function(tbl)
@@ -21,32 +20,32 @@ local SweepBuf  = {
 
   u24le = function(tbl)
     return string.byte(tbl.buff,tbl.seekpos) +
-           string.byte(tbl.buff,tbl.seekpos+1)*256 + 
-           string.byte(tbl.buff,tbl.seekpos+2)*4096
+           string.byte(tbl.buff,tbl.seekpos+1)*0x100 + 
+           string.byte(tbl.buff,tbl.seekpos+2)*0x10000
   end,
 
   u32le = function(tbl)
     return string.byte(tbl.buff,tbl.seekpos) +
-           string.byte(tbl.buff,tbl.seekpos+1)*256 +
-           string.byte(tbl.buff,tbl.seekpos+2)*4096 + 
-           string.byte(tbl.buff,tbl.seekpos+3)*65536
+           string.byte(tbl.buff,tbl.seekpos+1)*0x100 +
+           string.byte(tbl.buff,tbl.seekpos+2)*0x10000 + 
+           string.byte(tbl.buff,tbl.seekpos+3)*0x1000000
   end,
 
   u16 = function(tbl)
-    return string.byte(tbl.buff,tbl.seekpos)*256 +
+    return string.byte(tbl.buff,tbl.seekpos)*0x100 +
            string.byte(tbl.buff,tbl.seekpos+1);
   end,
 
   u24 = function(tbl)
-    return string.byte(tbl.buff,tbl.seekpos)*4096 +
-           string.byte(tbl.buff,tbl.seekpos+1)*256 + 
+    return string.byte(tbl.buff,tbl.seekpos)  *0x10000 +
+           string.byte(tbl.buff,tbl.seekpos+1)*0x100 + 
            string.byte(tbl.buff,tbl.seekpos+2)
   end,
 
   u32 = function(tbl)
-    return string.byte(tbl.buff,tbl.seekpos)*65536 +
-           string.byte(tbl.buff,tbl.seekpos+1)*4096 +
-           string.byte(tbl.buff,tbl.seekpos+2)*256 + 
+    return string.byte(tbl.buff,tbl.seekpos)  *0x1000000 +
+           string.byte(tbl.buff,tbl.seekpos+1)*0x10000 +
+           string.byte(tbl.buff,tbl.seekpos+2)*0x100 + 
            string.byte(tbl.buff,tbl.seekpos+3)
   end,
 
@@ -228,11 +227,11 @@ local SweepBuf  = {
   end,
 
   next_u24 = function(tbl)
-    return tbl:next_u8()*4096 + tbl:next_u8()*256 + tbl:next_u8()
+    return tbl:next_u8()*65536 + tbl:next_u8()*256 + tbl:next_u8()
   end,
 
   next_u24_le = function(tbl)
-    return tbl:next_u8()+ tbl:next_u8()*256 + tbl:next_u8()*4096
+    return tbl:next_u8()+ tbl:next_u8()*256 + tbl:next_u8()*65536
   end,
 
   next_u32 = function(tbl)
@@ -240,7 +239,7 @@ local SweepBuf  = {
   end,
 
   next_u32_le = function(tbl)
-    return tbl:next_u8()+ tbl:next_u8()*256 + tbl:next_u8()*4096 + tbl:next_u8()*65536
+    return tbl:next_u8()+ tbl:next_u8()*0x100 + tbl:next_u8()*0x10000 + tbl:next_u8()*0x1000000
   end,
 
   next_u32_arr = function(tbl,nitems)
@@ -388,6 +387,14 @@ local SweepBuf  = {
     return string.format("%02X:%02X:%02X:%02X:%02X:%02X", tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8(), tbl:next_u8() )
   end,
   
+  next_ipv6 =  function(tbl)
+    local strip6 = ffi.new(' char  [64]') 
+    local ip6bytes = ffi.new(' char  [16]') 
+	ip6bytes=tbl:next_str_to_len(16)
+    ffi.C.inet_ntop(ffi.C.AF_INET6, ip6bytes, strip6, 64);
+    return  ffi.string(strip6)
+  end,
+
   -- attr_value_regex = 2 captures 
   split_fields=function(tbl, attr_value_regex)
 
